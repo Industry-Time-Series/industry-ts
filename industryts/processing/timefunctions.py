@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 
 
-def get_continuous_patches(data: pd.DataFrame, t_s: pd.Timedelta,
+def get_continuous_patches(data: pd.DataFrame, t_s: pd.Timedelta = None,
                            min_time: str = '0S', drop_head: int = 0,
                            drop_tail: int = 0,
                            return_num_index: bool = False) -> list:
@@ -20,7 +20,8 @@ def get_continuous_patches(data: pd.DataFrame, t_s: pd.Timedelta,
 
     Args:
         data (pd.DataFrame): The data to obtain the start and end timestamps.
-        t_s (pd.Timedelta): Sampling time.
+        t_s (pd.Timedelta): Sampling time. If None, it will be inferred from
+            the data index. Defaults to None.
         min_time(str): The minimum duration time to consider a patch as valid.
             Defaults to '0S', which means that all patches will be considered.
         drop_head (int, optional): Number of samples to drop from the head of
@@ -36,6 +37,9 @@ def get_continuous_patches(data: pd.DataFrame, t_s: pd.Timedelta,
     """
     # All time instants where events are happening, with an indicator of
     # whether that instant is the start (first sample) of an event window.
+    if t_s is None:
+        t_s = infer_sampling_time(data)
+
     t = data.index.to_series().diff().gt(t_s).astype(int)
 
     # Index of timeline array "t" where each event window begins
