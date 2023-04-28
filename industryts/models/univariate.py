@@ -31,7 +31,6 @@ class UnivariateModel(metaclass=abc.ABCMeta):
         """
         raise NotImplementedError()
 
-    @abc.abstractmethod
     def __call__(
             self,
             data: Union[pd.DataFrame, np.ndarray],
@@ -65,10 +64,14 @@ class AutoRegressive(UnivariateModel):
         """
         if isinstance(data, pd.DataFrame):
             data = data.values
-        if self.__bias:
-            data = np.hstack([np.ones((data.shape[0], 1)), data])
-        regressors = np.vstack([data[i:-self.p + i] for i in range(self.p)])
+        # If data is 1D, make it 2D
+        if data.ndim == 1:
+            data = data.reshape(-1, 1)
+        regressors = np.hstack(
+            [data[i:-self.p + i] for i in range(self.p)])
         targets = data[self.p:]
+        if self.__bias:
+            regressors = np.hstack([np.ones((regressors.shape[0], 1)), regressors])
         self.coef = np.linalg.lstsq(regressors, targets, rcond=None)[0]
 
     def predict(self, data: Union[pd.DataFrame, np.ndarray], **kwargs):
