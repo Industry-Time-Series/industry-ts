@@ -7,7 +7,8 @@ import collections.abc
 import numpy as np
 
 
-def ar_process(coefs: list, samples: int = 100, noise: float = 0):
+def ar_process(coefs: list, samples: int = 100, noise: float = 0
+               ) -> np.ndarray:
     """
     Generate synthetic data from an Autoregressive (AR) process of a given
     length and known coefficients, with the possibility of adding noise to
@@ -54,7 +55,8 @@ def ar_process(coefs: list, samples: int = 100, noise: float = 0):
     return np.array(y)
 
 
-def ma_process(coefs: list, samples: int = 100, noise: float = 0):
+def ma_process(coefs: list, samples: int = 100, noise: float = 0
+               ) -> np.ndarray:
     """
     Generate synthetic data from a Moving Average (MA) process of a given
     length and known coefficients, with the possibility of adding noise to
@@ -84,13 +86,21 @@ def ma_process(coefs: list, samples: int = 100, noise: float = 0):
     y = np.zeros(samples)
     # White noise series of errors that will be used in the MA process
     nu = [np.random.normal() for _ in range(samples)]
+    # Initialize the process for k = 0 where the previous values of nu are
+    # zero.
+    y[0] = nu[0]
+    for k in range(1, samples):
+        if k < order:
+            # Not all past measurements of nu are available yet, so the
+            # previous values of the series are calculated differently.
+            prev_samples = nu[0:k][::-1]
+            y[k] = np.sum(np.array(prev_samples) * coefs[:k]) + nu[k]
+        else:
+            # Get previous values of the series, reversed. This is done to
+            # match the order of the coefficients.
+            prev_samples = nu[(k - order):k][::-1]
 
-    for k in range(order, samples):
-        # Get previous values of the series, reversed. This is done to
-        # match the order of the coefficients.
-        prev_samples = nu[(k - order):k][::-1]
-
-        y[k] = np.sum(np.array(prev_samples) * coefs) + nu[k]
+            y[k] = np.sum(np.array(prev_samples) * coefs) + nu[k]
 
     if noise:
         y += np.random.normal(0, noise, samples)
