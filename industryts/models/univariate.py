@@ -49,7 +49,7 @@ class UnivariateModel(metaclass=abc.ABCMeta):
             data = data.reshape(-1, 1)
         return data
 
-    def _prepare_regressors(self, data: Union[pd.DataFrame, np.ndarray],
+    def _prepare_regressors(self, data: np.ndarray,
                             inference: bool = False) -> np.ndarray:
         """
         Prepare the data for prediction.
@@ -62,10 +62,11 @@ class UnivariateModel(metaclass=abc.ABCMeta):
             data (ndarray): Prepared data.
         """
         if inference:
-            regressors = np.hstack([data[-self.__order:]])
+            regressors = data[-self.__order:].reshape(1, -1)
         else:
             regressors = np.hstack(
                 [data[i:-self.__order + i] for i in range(self.__order)])
+
         # Reverse the regressors to match the order of the coefficients
         regressors = regressors[:, ::-1]
 
@@ -117,33 +118,28 @@ class AutoRegressive(UnivariateModel):
     def forecast(self, initial_condition: Union[pd.DataFrame, np.ndarray],
                  horizon: int = 1):
         """
-        Forecast the values of the data.
+        Simulate the model forward in time.
 
         Args:
-            initial_condition: Initial condition for the forecast. The delayed
-                values of the time series need to be presented in crescent
-                order of delays, e.g. for a model of order 3, the initial
-                condition should be [y(t-1), y(t-2), y(t-3)].
-            horizon: Number of steps to forecast. Defaults to 1.
+            initial_conditions (ArrayLike): Initial conditions for the model.
+            horizon (int): Number of steps to forecast. Defaults to 1.
 
         Returns:
-            forecast: Forecasted values.
+            forecast (ndarray): Forecasted values.
         """
-        if isinstance(initial_condition, pd.DataFrame):
-            initial_condition = initial_condition.values
-        if initial_condition.ndim == 1:
-            initial_condition = initial_condition.reshape(-1, 1)
-        if self.__bias:
-            initial_condition = np.hstack(
-                [np.ones((initial_condition.shape[0], 1)), initial_condition])
-        forecast = np.zeros((horizon, initial_condition.shape[1]))
-        for i in range(horizon):
-            forecast[i] = initial_condition @ self.coef
-            initial_condition = np.hstack(
-                [np.ones((initial_condition.shape[0], 1)),
-                 initial_condition[:, :-1]])
-            initial_condition[:, -1] = forecast[i]
-        return forecast
+
+        regressors = self._prepare_regressors(initial_condition,
+                                              inference=True)
+        forecast = np.zeros((self.p + horizon))
+        forecast[:self.p] = initial_condition[-self.p:]
+
+        for i in range(self.p, self.p + horizon):
+            print('regressors', regressors)
+            forecast[i] = regressors @ self.coef
+            regressors = self._prepare_regressors(forecast[-self.p:],
+                                                  inference=True)
+            print('forecast', forecast)
+        return forecast[-horizon:]
 
 
 class MovingAverage(UnivariateModel):
