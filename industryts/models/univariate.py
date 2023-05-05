@@ -25,21 +25,20 @@ class UnivariateModel(metaclass=abc.ABCMeta):
         """
         pass
 
-    def predict(self, data: Union[pd.DataFrame, np.ndarray]):
+    @abc.abstractmethod
+    def forecast(self, initial_conditions: Union[pd.DataFrame, np.ndarray],
+                 horizon: int = 1) -> np.ndarray:
         """
-        Predict the values of the data.
+        Simulate the model forward in time.
 
         Args:
-            data (ArrayLike): Data to be predicted.
+            initial_conditions (ArrayLike): Initial conditions for the model.
+            horizon (int): Number of steps to forecast. Defaults to 1.
 
         Returns:
-            predictions (ndarray): Predicted values.
+            forecast (ndarray): Forecasted values.
         """
-        if isinstance(data, pd.DataFrame):
-            data = data.values
-        if self.__bias:
-            data = np.hstack([np.ones((data.shape[0], 1)), data])
-        return data @ self.coef
+        pass
 
     def _fix_dim_type(self, data: Union[pd.DataFrame, np.ndarray]
                       ) -> np.ndarray:
@@ -51,7 +50,7 @@ class UnivariateModel(metaclass=abc.ABCMeta):
         return data
 
     def _prepare_regressors(self, data: Union[pd.DataFrame, np.ndarray],
-                            inference: bool = False):
+                            inference: bool = False) -> np.ndarray:
         """
         Prepare the data for prediction.
 
@@ -168,7 +167,7 @@ class MovingAverage(UnivariateModel):
         self._bias = bias
 
     def fit(self, data: Union[pd.DataFrame, np.ndarray],
-            n_iterations: int = 100):
+            n_iterations: int = 100) -> None:
         """
         Fit the model to the data.
         """
