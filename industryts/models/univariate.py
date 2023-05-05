@@ -134,11 +134,9 @@ class AutoRegressive(UnivariateModel):
         forecast[:self.p] = initial_condition[-self.p:]
 
         for i in range(self.p, self.p + horizon):
-            print('regressors', regressors)
             forecast[i] = regressors @ self.coef
             regressors = self._prepare_regressors(forecast[-self.p:],
                                                   inference=True)
-            print('forecast', forecast)
         return forecast[-horizon:]
 
 
