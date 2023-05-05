@@ -99,15 +99,25 @@ class AutoRegressive(UnivariateModel):
     """
 
     def __init__(self, p: int = 1, bias: bool = True):
+        if p < 1:
+            raise ValueError("The order of the model must be greater than 0.")
+        if not isinstance(p, int):
+            raise TypeError("The order of the model must be an integer.")
+        if not isinstance(bias, bool):
+            raise TypeError("The bias must be a boolean value.")
         super(AutoRegressive, self).__init__(order=p)
         self.p = p
         self.coef = None
         self._bias = bias
 
-    def fit(self, data: Union[pd.DataFrame, np.ndarray], **kwargs):
+    def fit(self, data: Union[pd.DataFrame, np.ndarray]):
         """
         Fit the model to the data.
         """
+        if self.p > data.shape[0]:
+            raise ValueError("The order of the model must be less than or "
+                             "equal to the number of observations.")
+
         data = self._fix_dim_type(data)
 
         regressors = self._prepare_regressors(data)
@@ -127,6 +137,15 @@ class AutoRegressive(UnivariateModel):
         Returns:
             forecast (ndarray): Forecasted values.
         """
+        if self.coef is None:
+            raise ValueError("The model must be fitted before forecasting.")
+        if not isinstance(horizon, int):
+            raise TypeError("The horizon must be an integer.")
+        if horizon < 1:
+            raise ValueError("The horizon must be greater than 0.")
+        if initial_condition.shape[0] < self.p:
+            raise ValueError("The initial conditions must have at least as "
+                             "many observations as the order of the model.")
 
         regressors = self._prepare_regressors(initial_condition,
                                               inference=True)
