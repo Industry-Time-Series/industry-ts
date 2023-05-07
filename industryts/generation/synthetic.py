@@ -3,8 +3,9 @@
     series.
 """
 import collections.abc
-
+from typing import Union
 import numpy as np
+import pandas as pd
 
 
 def ar_process(coefs: list, samples: int = 100, noise: float = 0
@@ -106,3 +107,38 @@ def ma_process(coefs: list, samples: int = 100, noise: float = 0
         y += np.random.normal(0, noise, samples)
 
     return np.array(y)
+
+
+def discontinuous_timeseries(start_date: Union[str, pd.Timestamp],
+                             end_date: Union[str, pd.Timestamp],
+                             freq: Union[str, pd.Timedelta],
+                             num_discontinuities: int,
+                             is_categorical: bool = False) -> pd.Series:
+    """
+    Generate a discontinuous time series with random data.
+
+    Args:
+        start_date (str or Timestamp): start date of the time series.
+        end_date (str or Timestamp): end date of the time series.
+        freq (str or Timedelta): frequency of the time series.
+        num_discontinuities (int): number of discontinuity points to be
+        generated.
+
+    Returns:
+        ts (Series): discontinuous time series with random data.
+    """
+    # Create a date range with specified frequency
+    date_range = pd.date_range(start=start_date, end=end_date, freq=freq)
+    # Randomly select discontinuity points
+    discontinuity_points = np.random.choice(date_range, num_discontinuities,
+                                            replace=False)
+    # Create the time series with random data
+    if is_categorical:
+        data = np.random.choice(['A', 'B', 'C', 'D'], len(date_range))
+    else:
+        data = np.random.rand(len(date_range))
+    ts = pd.Series(data, index=date_range)
+    # Drop NaN values at the discontinuity points
+    for point in discontinuity_points:
+        ts.drop(point, inplace=True)
+    return ts
