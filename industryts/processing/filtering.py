@@ -1,8 +1,12 @@
-"""Functions to process time series data that aren't easily found."""
+"""
+    Module with functions for filtering samples.
+"""
 
 import pandas as pd
 import numpy as np
+
 from typing import Union
+from processing.timestamps import infer_sampling_time
 
 
 def get_continuous_patches(data: pd.DataFrame, t_s: pd.Timedelta = None,
@@ -73,104 +77,6 @@ def get_continuous_patches(data: pd.DataFrame, t_s: pd.Timedelta = None,
                         {"start": start_time, "end": end_time})
 
     return patches_dicts
-
-
-def infer_sampling_time(data: pd.DataFrame) -> float:
-    """
-    Infers sampling time from datetime index.
-    If the index is not a datetime index, it will raise an error.
-    Returns the sampling time as a pd.Timedelta object.
-
-    Args:
-        data (pd.DataFrame): Data frame with datetime index to infer
-          the sampling time
-
-    Returns:
-        t_s (pd.Timedelta): The inferred sampling time
-    """
-    if not isinstance(data.index, pd.DatetimeIndex):
-        raise ValueError("Data index must be a datetime index.")
-
-    freq = pd.infer_freq(data.index[:10])
-    sample = 1
-    while freq is None:
-        freq = pd.infer_freq(data.index[sample: 10 + sample])
-        sample += 1
-        if sample > data.shape[0] - 10:
-            raise ValueError(
-                "Could not infer sampling time. Exhauted all samples.")
-    # If the frequency is 1S, this function should return 1S instead of S
-    if len(str(freq)) == 1:
-        freq = f"1{freq}"
-    t_s = pd.to_timedelta(freq)
-
-    return t_s
-
-
-def counts_ratio_per_patch(timeseries: pd.Series, patches_dicts: list,
-                           column: str,
-                           return_timestamps: bool = False) -> pd.DataFrame:
-    """
-    Calculates the ratio between counts of all values in a batch and the
-        samples in the batch. Used for series with discrete inputs as a way of
-        aggregating a batch.
-
-    Args:
-        timeseries (pd.Series): The time series to be processed
-
-        batches_dicts (list): The list containing the start and end of
-            every batch
-
-        column (str): The column name to be used in the ratio calculation
-
-        return_timestamps (bool): If True, the function will return the
-            timestamps of the start and end of every batch. Defaults to False.
-
-    Returns:
-        df_column_values (pd.DataFrame): A dataframe contaning the ratio of
-            column in every data window.
-    """
-
-    # Possible values for that column in any batch
-    values = list(timeseries.unique())
-
-    # The final list with every ratio value for every batch
-    column_values = []
-
-    for event in patches_dicts:
-        # Starting moment of the window
-        start = event['start']
-        # Ending moment of the window
-        end = event['end']
-
-        # Create a key for every possible value in that batch
-        batch_values = {value: 0 for value in values}
-
-        # Count of each value in that batch
-        values_event = timeseries.loc[start:end].value_counts().to_dict()
-        size_event = timeseries.loc[start:end].shape[0]
-
-        # * Since the batch does not necessarily has all the values, we use
-        # * it's value counts to update the batches values
-        for key, _ in values_event.items():
-            batch_values[key] = values_event[key]/size_event
-
-        if return_timestamps:
-            batch_values["start"] = start
-            batch_values["end"] = end
-
-        column_values.append(batch_values)
-
-    df_column_values = pd.DataFrame(column_values)
-
-    for df_column in df_column_values.columns:
-        df_column_values = df_column_values.rename(
-            {
-                df_column: f'{column}_{df_column}'
-            },
-            axis='columns')
-
-    return df_column_values
 
 
 def rm_stopped_operation(data: pd.DataFrame, rm_events_mask: np.ndarray,

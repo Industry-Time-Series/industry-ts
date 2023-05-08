@@ -2,7 +2,7 @@
     Test the functions in timefunctions.py
 """
 import generation.synthetic as syn
-import processing.timefunctions as tf
+import processing.timestamps as tf
 import pandas as pd
 
 """The expected flow of work is the following:
