@@ -12,11 +12,20 @@ from typing import Union
 class UnivariateModel(metaclass=abc.ABCMeta):
     """
     Base class for univariate models.
+
+    Args:
+        order (int): Order of the model.
+        family (str): Family of the model. Defaults to "AR".
+
+    Attributes:
+        order: Order of the model.
+        family: Family of the model.
     """
 
-    def __init__(self, order):
+    def __init__(self, order: int, family: str):
         super(UnivariateModel, self).__init__()
         self.__order = order
+        self.__family = family
 
     @abc.abstractmethod
     def fit(self, data: Union[pd.DataFrame, np.ndarray], **kwargs):
@@ -83,6 +92,9 @@ class UnivariateModel(metaclass=abc.ABCMeta):
             **kwargs) -> np.ndarray:
         self.predict(data, **kwargs)
 
+    def __str__(self) -> str:
+        return self.__family + " model of order " + str(self.__order)
+
 
 class AutoRegressive(UnivariateModel):
     """
@@ -105,7 +117,7 @@ class AutoRegressive(UnivariateModel):
             raise TypeError("The order of the model must be an integer.")
         if not isinstance(bias, bool):
             raise TypeError("The bias must be a boolean value.")
-        super(AutoRegressive, self).__init__(order=p)
+        super(AutoRegressive, self).__init__(order=p, family='Autoregressive')
         self.p = p
         self.coef = None
         self._bias = bias
@@ -174,7 +186,7 @@ class MovingAverage(UnivariateModel):
     """
 
     def __init__(self, q: int = 1, bias: bool = True):
-        super(MovingAverage, self).__init__(order=q)
+        super(MovingAverage, self).__init__(order=q, family='Moving Average')
         self.q = q
         self.coef = None
         self._bias = bias
