@@ -128,6 +128,12 @@ def discontinuous_timeseries(start_date: Union[str, pd.Timestamp],
         ts (Series): discontinuous time series with random data.
     """
     # Create a date range with specified frequency
+    if isinstance(start_date, str):
+        start_date = pd.Timestamp(start_date)
+    if isinstance(end_date, str):
+        end_date = pd.Timestamp(end_date)
+    if isinstance(freq, str):
+        freq = pd.Timedelta(freq)
     date_range = pd.date_range(start=start_date, end=end_date, freq=freq)
     # Randomly select discontinuity points
     discontinuity_points = np.random.choice(date_range, num_discontinuities,
@@ -142,3 +148,49 @@ def discontinuous_timeseries(start_date: Union[str, pd.Timestamp],
     for point in discontinuity_points:
         ts.drop(point, inplace=True)
     return ts
+
+
+def part_static_timeseries(start_date: Union[str, pd.Timestamp],
+                           end_date: Union[str, pd.Timestamp],
+                           frequency: Union[str, pd.Timedelta],
+                           n_samples_static: int,
+                           value_static: float = 1.0) -> pd.DataFrame:
+    """Generate a time series with a part that is static.
+
+    Args:
+        start_date (Union[str, pd.Timestamp]): Start date of the time series.
+        end_date (Union[str, pd.Timestamp]): End date of the time series.
+        n_samples_static (int): Number of samples that will be static.
+
+    Raises:
+        ValueError: Error raised if the number of samples is less than the
+        number of static samples.
+
+    Returns:
+        pd.DataFrame: Time series with a part that is static.
+    """
+    if isinstance(start_date, str):
+        start_date = pd.Timestamp(start_date)
+    if isinstance(end_date, str):
+        end_date = pd.Timestamp(end_date)
+    if isinstance(frequency, str):
+        frequency = pd.Timedelta(frequency)
+    # Generate a DatetimeIndex with a frequency of 1 minute
+    dt_index = pd.date_range(start=start_date, end=end_date, freq=frequency)
+
+    # Create 3 random float columns
+    col1 = np.random.randn(len(dt_index))
+    col2 = np.random.randn(len(dt_index))
+    col3 = np.random.randn(len(dt_index))
+
+    if len(dt_index) < n_samples_static:
+        raise ValueError('The number of samples must be greater than the '
+                         'number of static samples.')
+    # Set one of the columns to a constant value for n_samples_static samples
+    col1[:n_samples_static] = value_static
+
+    # Create the DataFrame
+    df = pd.DataFrame({'col1': col1, 'col2': col2, 'col3': col3},
+                      index=dt_index)
+
+    return df
