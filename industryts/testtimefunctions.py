@@ -4,6 +4,9 @@
 import generation.synthetic as syn
 import processing.timestamps as tf
 import pandas as pd
+import processing.featureengineering as fe
+import processing.filtering as flt
+
 
 """The expected flow of work is the following:
 1. Generate synthetic data without discontinuities
@@ -21,14 +24,14 @@ frequency = "1D"
 n_discontinuities = 40
 timeseries = syn.discontinuous_timeseries(start_date, end_date,
                                           frequency, n_discontinuities)
-patches = tf.get_continuous_patches(timeseries, frequency)
+patches = flt.get_continuous_patches(timeseries, frequency)
 
 # Test function counts_ratio_per_patch ----------------------------------------
 n_discontinuities = 40
 timeseries = syn.discontinuous_timeseries(start_date, end_date,
                                           frequency, n_discontinuities, True)
-patches = tf.get_continuous_patches(timeseries, frequency)
-column_values = tf.counts_ratio_per_patch(timeseries, patches, 'categories')
+patches = flt.get_continuous_patches(timeseries, frequency)
+column_values = fe.counts_ratio_per_patch(timeseries, patches, 'categories')
 
 # Test function rm_stopped_operation ------------------------------------------
 # No discontinuities
@@ -51,5 +54,39 @@ print("Shape after removing only stopped operation", dataframe_0_0.shape)
 dataframe_2_2 = tf.rm_stopped_operation(dataframe, mask, "2D", "2D",
                                         return_shutdown_dict=False)
 print("Shape after removing 2 days before and after", dataframe_2_2.shape)
-patches = tf.get_continuous_patches(timeseries, frequency)
+patches = flt.get_continuous_patches(timeseries, frequency)
 print("Number of patches", len(patches))
+
+# Test function filter_static_windows =========================================
+n_samples_static = 100
+frequency = "1 minute"
+# Replace the static part with NaNs
+timeseries_static = syn.part_static_timeseries(
+    start_date, end_date, frequency, n_samples_static)
+print("NAs in the static part", timeseries_static.isna().sum())
+timeseries_static, removed_df = flt.filter_static_windows(
+    timeseries_static, threshold=10)
+print("Shape after filtering static part", timeseries_static.shape)
+print("NAs after filtering the static part", timeseries_static.isna().sum())
+print("Removed dataframe", removed_df)
+
+# Removing in fact the static part
+timeseries_static = syn.part_static_timeseries(
+    start_date, end_date, frequency, n_samples_static)
+print("Original shape", timeseries_static.shape)
+timeseries_static, removed_df = flt.filter_static_windows(
+    timeseries_static, threshold=10, remove_window=True)
+print("Shape after removing static part", timeseries_static.shape)
+print("Removed dataframe", removed_df)
+
+# Test function remove_static_columns =========================================
+start_date = "2023-01-01"
+end_date = "2023-12-31"
+frequency = "1D"
+n_samples_static = 365
+timeseries_static = syn.part_static_timeseries(
+    start_date, end_date, frequency, n_samples_static, 0)
+print("Original shape", timeseries_static.shape)
+timeseries_static, removed_df = flt.remove_static_columns(timeseries_static)
+print("Shape after removing static columns", timeseries_static.shape)
+print("Removed dataframe", removed_df)
