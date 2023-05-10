@@ -162,3 +162,121 @@ def rm_stopped_operation(data: pd.DataFrame, rm_events_mask: np.ndarray,
         return dataset, shutdown_dicts
     else:
         return dataset
+
+
+def filter_static_windows(data: pd.DataFrame, columns: list = None,
+                          threshold: int = 10,
+                          remove_window: bool = False,
+                          return_n_removed: bool = True) -> pd.DataFrame:
+    """
+    Filter windows where there is no variation for 'threshold' consecutive
+        samples. In other words, replace static windows for null values or
+        remove windows, where a window is considered static if the value of the
+        series remains unchanged for at least 'threshold' samples.
+
+    Args:
+        data (pd.DataFrame): Dataframe with the values to be analyzed
+        columns (list, optional): Columns to check if the windows are static.
+            Defaults to [].
+        threshold (int, optional): Minimum length of sequence of samples with
+            the same value to remove. Defaults to 10.
+        remove_window (bool, optional): If True, removes the static windows.
+            If False, replace static windows with NA. Defaults to False.
+        return_n_removed (bool, optional): If True, returns the amount of
+            removed samples for every column. Defaults to True.
+
+    Returns:
+        pd.DataFrame: Dataframe without the static windows (or NAs inplace).
+        pd.DataFrame: Columns with amount of static windows removed (or NAs
+        inplace).
+    """
+    if not columns:
+        columns = data.columns
+    column_time_static = {}
+    for column in columns:
+        time_static = 0
+        series = data[column]
+        series_diff = series.diff()
+        series_diff_0 = np.where(series_diff == 0)[0]
+        if list(series_diff_0):
+            dis_points_start = [series_diff_0[0]] + list(series_diff_0[
+                np.where(np.diff(series_diff_0,
+                                 prepend=series_diff_0[0]) > 1)[0]])
+            dis_points_end = (list(series_diff_0[np.where(np.diff(
+                series_diff_0, prepend=series_diff_0[0]) > 1)[0] - 1]) +
+                [series_diff_0[-1]])
+
+            # Reverse the lists to drop correctly the samples (if we drop the
+            # first sample, the index of the second sample is not coherent
+            # anymore)
+            dis_points_start.reverse()
+            dis_points_end.reverse()
+
+            for start, end in zip(dis_points_start, dis_points_end):
+                if (end - start) >= threshold:
+                    # If remove is True, remove the window
+                    if remove_window:
+                        # * Drop including the 'end' sample
+                        data = data.drop(data[start:end+1].index)
+                    else:
+                        # * Replace the window with null values
+                        data.loc[start:end, column] = np.nan
+                    time_static += (end - start)
+
+        column_time_static[column] = time_static
+        time_static_pd = pd.DataFrame.from_dict(column_time_static,
+                                                orient='index',
+                                                columns=['time_static'])
+        time_static_pd.sort_values(by='time_static', ascending=False,
+                                   inplace=True)
+
+    if return_n_removed:
+        return data, time_static_pd
+    else:
+        return data
+
+
+def remove_static_columns(df: pd.DataFrame, min_std_cv: float = 0.01,
+                          columns: list = None,
+                          return_removed: bool = True):
+    """Checks if the values of the column don't change a minimum value,
+        that would result in bad feature
+
+    Args:
+        df (pd.DataFrame): Process' dataframe
+        min_std_cv (float, optional): Minimum variation coefficient.
+            Defaults to 0.01.
+        columns (list, optional): List of columns to check. If None, all
+            columns are checked. Defaults to None.
+        return_removed (bool, optional): If True, returns the removed columns
+        and its coefficient of variation. Defaults to True.
+
+    Returns:
+        pd.DataFrame: The dataframe without the columns that don't change
+        pd.DataFrame: Dataframe with the columns that don't change and their
+            coefficient of variation
+    """
+    if columns is None:
+        columns = df.columns
+    column_coef_var = {}
+    for col in columns:
+        col_mean = df[col].mean()
+        col_std = df[col].std()
+        if col_mean != 0:
+            col_cv = col_std / col_mean
+            # ! If the column's standard deviation is 0, it is removed. It's
+            # ! not possible to calculate the coefficient of variation in this
+            # ! case, so we have to drop the column.
+            if np.abs(col_cv) <= min_std_cv:
+                df = df.drop(col, axis=1)
+                column_coef_var[col] = col_cv
+        else:
+            if col_std == 0:
+                df = df.drop(col, axis=1)
+                column_coef_var[col] = 0
+    coef_var_pd = pd.DataFrame.from_dict(column_coef_var, orient='index',
+                                         columns=['coef_var'])
+    if return_removed:
+        return df, coef_var_pd
+    else:
+        return df
