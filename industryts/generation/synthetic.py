@@ -106,3 +106,58 @@ def ma_process(coefs: list, samples: int = 100, noise: float = 0
         y += np.random.normal(0, noise, samples)
 
     return np.array(y)
+
+
+def seasonal_component(samples: int = 100, period: int = 10,
+                       amplitude: float = 1, noise: float = 0
+                       ) -> np.ndarray:
+    """
+    Generate a seasonal component of a given length, period and amplitude,
+    with the possibility of adding noise to the measurements.
+
+    The nature of the seasonal component is a sine wave with the given period
+    and amplitude.
+
+    Args:
+        samples (int): number of data points to be generated. Default is 100.
+        period (int): period of the seasonal component. Default is 10.
+        amplitude (float): amplitude of the seasonal component. Default is 1.
+        noise (float): standard deviation of the noise to be added to the
+        measurements. Default is 0, which means no noise.
+
+    Returns:
+        series: array with the generated seasonal component.
+    """
+    # The seasonal component is a sine wave with the given period and
+    # amplitude
+    omega = 2 * np.pi / period
+    y = amplitude * np.sin(omega * np.arange(samples))
+
+    if noise:
+        y += np.random.normal(0, noise, samples)
+
+    return np.array(y)
+
+
+def trend_component(samples: int = 100, slope: float = 0.1,
+                    intercept: float = 0, noise: float = 0) -> np.ndarray:
+    """
+    Generate a trend component of a given length, slope and intercept, with
+    the possibility of adding noise to the measurements.
+
+    Args:
+        samples (int): number of data points to be generated. Default is 100.
+        slope (float): slope of the trend component. Default is 0.
+        intercept (float): intercept of the trend component. Default is 0.
+        noise (float): standard deviation of the noise to be added to the
+        measurements. Default is 0, which means no noise.
+
+    Returns:
+        series: array with the generated trend component.
+    """
+    y = np.arange(samples) * slope + intercept
+
+    if noise:
+        y += np.random.normal(0, noise, samples)
+
+    return np.array(y)
