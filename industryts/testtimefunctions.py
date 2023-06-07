@@ -3,6 +3,7 @@
 """
 import generation.synthetic as syn
 import processing.timestamps as tf
+import processing.filtering as flt
 import pandas as pd
 
 """The expected flow of work is the following:
@@ -21,7 +22,7 @@ frequency = "1D"
 n_discontinuities = 40
 timeseries = syn.discontinuous_timeseries(start_date, end_date,
                                           frequency, n_discontinuities)
-patches = tf.get_continuous_patches(timeseries, frequency)
+patches = flt.get_continuous_patches(timeseries, frequency)
 
 # Test function counts_ratio_per_patch ----------------------------------------
 n_discontinuities = 40

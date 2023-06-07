@@ -9,10 +9,14 @@ from typing import Union
 from processing.timestamps import infer_sampling_time
 
 
-def get_continuous_patches(data: pd.DataFrame, t_s: pd.Timedelta = None,
-                           min_time: str = '0S', drop_head: int = 0,
-                           drop_tail: int = 0,
-                           return_num_index: bool = False) -> list:
+def get_continuous_patches(
+        data: Union[pd.DataFrame, np.ndarray],
+        sampling_time: pd.Timedelta = None,
+        min_length: Union[str, int] = 0,
+        drop_leading: int = 0,
+        drop_trailing: int = 0,
+        return_num_index: bool = False
+) -> list:
     """
     Function to extract the time limits for all continuous patches of data.
 
@@ -26,55 +30,77 @@ def get_continuous_patches(data: pd.DataFrame, t_s: pd.Timedelta = None,
     Args:
         data (pd.DataFrame): The data to obtain the start and end timestamps.
 
-        t_s (pd.Timedelta): Sampling time. If None, it will be inferred from
-            the data index. Defaults to None.
+        sampling_time (pd.Timedelta): Sampling time. If None, it will be
+            inferred from the data index. Defaults to None.
 
-        min_time(str): The minimum duration time to consider a patch as valid.
-            Defaults to '0S', which means that all patches will be considered.
+        min_length(str, int): The minimum duration to consider a patch as
+        valid. If 'str', it must be a string that can be converted to a
+        pd.Timedelta. If 'int', it must be an integer representing the number
+        of samples. Defaults to 0, which means that all patches will be
+        considered.
 
-        drop_head (int, optional): Number of samples to drop from the head of
-            each patch of data. Defaults to 0.
+        drop_leading (int, optional): Number of samples to drop from
+            the start of each patch of data. Defaults to 0.
 
-        drop_tail (int, optional): Number of samples to drop from the tail of
-            each patch of data. Defaults to 0.
+        drop_trailing (int, optional): Number of samples to drop from the end
+            of each patch of data. Defaults to 0.
 
         return_num_index (bool, optional): If True, the function will return
             the row number of the start and end of each patch,
-            instead of the timestamp index.
+            instead of the timestamp index (if available).
     Returns:
         patches (list): The list of dicts containing the start and end
             of each patch.
     """
-    # All time instants where events are happening, with an indicator of
-    # whether that instant is the start (first sample) of an event window.
-    if t_s is None:
-        t_s = infer_sampling_time(data)
-
-    t = data.index.to_series().diff().gt(t_s).astype(int)
+    if isinstance(data.index, pd.DatetimeIndex):
+        if sampling_time is None:
+            sampling_time = infer_sampling_time(data)
+        # All time instants where events are happening, with an indicator of
+        # whether that instant is the start (first sample) of an event window.
+        idx_disc = data.index.to_series().diff().gt(sampling_time).astype(int)
+        if isinstance(min_length, str):
+            min_length = pd.to_timedelta(min_length)
+        elif min_length == 0:
+            min_length = pd.to_timedelta('0S')
+        else:
+            raise ValueError("min_length must be a string if data index is "
+                                "a DatetimeIndex.")
+    else:
+        idx_disc = data.index.to_series().diff().gt(1).astype(int)
+        if isinstance(min_length, str):
+            raise ValueError("min_length must be an integer if data index is "
+                             "not a DatetimeIndex.")
 
     # Index of timeline array "t" where each event window begins
-    event_starts = np.r_[0, np.where(t != 0)[0]]
+    event_starts = np.r_[0, np.where(idx_disc != 0)[0]]
     # Index of timeline array "t" where each event window ends
     # Subtract one because the last event ends on the last sample before the
     # next event starts. Add the last sample "t.shape[0]-1" as the end of the
     # last event.
-    event_ends = np.r_[np.where(t != 0)[0] - 1, t.shape[0] - 1]
+    event_ends = np.r_[np.where(idx_disc != 0)[0] - 1, idx_disc.shape[0] - 1]
     patches_dicts = []
 
     # Dict containing start and end of all events
     # Remove samples in the head and tail of the series
-    event_starts += drop_head
-    event_ends -= drop_tail
-    for start, end in zip(event_starts, event_ends):
-        if end >= start:
-            start_time = data.index[start]
-            end_time = data.index[end]
-            if end_time - start_time >= pd.to_timedelta(min_time):
-                if return_num_index:
-                    patches_dicts.append({"start": start, "end": end})
-                else:
+    event_starts += drop_leading
+    event_ends -= drop_trailing
+    if isinstance(data.index, pd.DatetimeIndex):
+        for start, end in zip(event_starts, event_ends):
+            if end >= start:
+                start_time = data.index[start]
+                end_time = data.index[end]
+                if end_time - start_time >= min_length:
+                    if return_num_index:
+                        patches_dicts.append({"start": start, "end": end})
+                    else:
+                        patches_dicts.append(
+                            {"start": start_time, "end": end_time})
+    else:
+        for start, end in zip(event_starts, event_ends):
+            if end >= start:
+                if end - start >= min_length:
                     patches_dicts.append(
-                        {"start": start_time, "end": end_time})
+                        {"start": start, "end": end})
 
     return patches_dicts
 
@@ -84,7 +110,7 @@ def rm_stopped_operation(data: pd.DataFrame, rm_events_mask: np.ndarray,
                          rm_interval_stop: Union[str, pd.Timedelta] = "0S",
                          minimum_interval: Union[str, pd.Timedelta] = "0S",
                          return_shutdown_dict: bool = False,
-                        ) -> pd.DataFrame:
+                         ) -> pd.DataFrame:
     """
     Remove all samples in rm_events_mask, plus/minus stop_interval.
 
