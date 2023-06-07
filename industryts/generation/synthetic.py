@@ -5,6 +5,9 @@
 import collections.abc
 
 import numpy as np
+import pandas as pd
+
+from typing import Union
 
 
 def ar_process(coefs: list, samples: int = 100, noise: float = 0
