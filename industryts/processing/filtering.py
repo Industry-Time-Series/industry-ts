@@ -306,3 +306,63 @@ def remove_static_columns(df: pd.DataFrame, min_std_cv: float = 0.01,
         return df, coef_var_pd
     else:
         return df
+
+
+def format_start(df: pd.DataFrame, s: int = 0, m: int = 0,
+                 h: int = 0):
+    """
+    Function to remove (if necessary) the first rows of the data in
+        order to have the first row in a specific format.
+
+    Args:
+
+        df (pd.DataFrame): df whose index is in datetime format.
+        s (int): initial second, with all windows starting with this second.
+        m (int): initial minute, with all windows starting with this minute.
+        h (int): if 0, initial hours are even; if 1, initial hours are odd.
+
+    Returns:
+
+        pd.DataFrame: with the specified format.
+
+    """
+    # hour = 0 -> even hours
+    # hour = 1 -> odd hours
+    matches = np.array([True] * len(df))
+    if s != -1:
+        matches = matches & (df.index.second == s)
+    if m != -1:
+        matches = matches & (df.index.minute == m)
+    if h != -1:
+        matches = matches & (df.index.hour % 2 == h)
+
+    if matches.any():
+        first_match = df.index[matches].min()
+        df = df.loc[first_match:]
+    return df
+
+
+def remove_almost_static_columns(df: pd.DataFrame,
+                                 columns: list = None,
+                                 threshold: float = 0.9) -> pd.DataFrame:
+    """Remove columns that have almost static values. The threshold is defined
+    by the user. Sometimes the column has a value that is almost static, but
+    there are some samples that have a different value. For example, the
+    variation coefficient is above the threshold, but for most of the samples
+    the value is the same. This function removes these columns.
+
+    Args:
+        df (pd.DataFrame): Dataframe with columns
+        columns (list): Columns to be removed
+
+    Returns:
+        pd.DataFrame: Dataframe without almost static columns
+    """
+    if columns is None:
+        columns = df.columns
+    for col in columns:
+        n_most_common_value = df[col].value_counts().iloc[0]
+        if n_most_common_value >= df.shape[0] * threshold:
+            df.drop(columns=col, axis=1, inplace=True)
+
+    return df
