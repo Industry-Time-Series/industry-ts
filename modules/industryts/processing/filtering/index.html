@@ -1,0 +1,872 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      <link rel="icon" href="../../../..">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-7.1.5">
+    
+    
+      
+        <title>filtering - Industry Timeseries</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.bde7dde4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ef6f36e2.min.css">
+        
+          
+          
+          <meta name="theme-color" content="#000000">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
+      
+    
+    
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="black" data-md-color-accent="">
+  
+    
+    <script>function __prefix(e){return new URL("../../../..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#_1" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../../.." title="Industry Timeseries" class="md-header__button md-logo" aria-label="Industry Timeseries" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Industry Timeseries
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              filtering
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        
+<a href="https://github.com/Industry-Time-Series/industry-ts" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Industry Timeseries
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-tabs__inner md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../../../.." class="md-tabs__link">
+      Home
+    </a>
+  </li>
+
+      
+        
+  
+  
+    
+  
+
+
+  
+  
+  
+    
+
+  
+  
+  
+    
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../generation/synthetic/" class="md-tabs__link md-tabs__link--active">
+        modules
+      </a>
+    </li>
+  
+
+  
+
+  
+
+      
+    </ul>
+  </div>
+</nav>
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Industry Timeseries" class="md-nav__button md-logo" aria-label="Industry Timeseries" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    Industry Timeseries
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/Industry-Time-Series/industry-ts" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Industry Timeseries
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" checked>
+      
+      <label class="md-nav__link" for="__nav_2">
+        modules
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="modules" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          modules
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_1" type="checkbox" id="__nav_2_1" checked>
+      
+      <label class="md-nav__link" for="__nav_2_1">
+        industryts
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="industryts" data-md-level="2">
+        <label class="md-nav__title" for="__nav_2_1">
+          <span class="md-nav__icon md-icon"></span>
+          industryts
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_1_1" type="checkbox" id="__nav_2_1_1" >
+      
+      <label class="md-nav__link" for="__nav_2_1_1">
+        generation
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="generation" data-md-level="3">
+        <label class="md-nav__title" for="__nav_2_1_1">
+          <span class="md-nav__icon md-icon"></span>
+          generation
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../generation/synthetic/" class="md-nav__link">
+        synthetic
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_1_2" type="checkbox" id="__nav_2_1_2" >
+      
+      <label class="md-nav__link" for="__nav_2_1_2">
+        models
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="models" data-md-level="3">
+        <label class="md-nav__title" for="__nav_2_1_2">
+          <span class="md-nav__icon md-icon"></span>
+          models
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../models/univariate/" class="md-nav__link">
+        univariate
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_1_3" type="checkbox" id="__nav_2_1_3" checked>
+      
+      <label class="md-nav__link" for="__nav_2_1_3">
+        processing
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="processing" data-md-level="3">
+        <label class="md-nav__title" for="__nav_2_1_3">
+          <span class="md-nav__icon md-icon"></span>
+          processing
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../featureengineering/" class="md-nav__link">
+        featureengineering
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          filtering
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        filtering
+      </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#get_continuous_patches" class="md-nav__link">
+    get_continuous_patches
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rm_stopped_operation" class="md-nav__link">
+    rm_stopped_operation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#filter_static_windows" class="md-nav__link">
+    filter_static_windows
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#remove_static_columns" class="md-nav__link">
+    remove_static_columns
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#format_start" class="md-nav__link">
+    format_start
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#remove_almost_static_columns" class="md-nav__link">
+    remove_almost_static_columns
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../timestamps/" class="md-nav__link">
+        timestamps
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#get_continuous_patches" class="md-nav__link">
+    get_continuous_patches
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rm_stopped_operation" class="md-nav__link">
+    rm_stopped_operation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#filter_static_windows" class="md-nav__link">
+    filter_static_windows
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#remove_static_columns" class="md-nav__link">
+    remove_static_columns
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#format_start" class="md-nav__link">
+    format_start
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#remove_almost_static_columns" class="md-nav__link">
+    remove_almost_static_columns
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                
+                <h1 id="_1"></h1>
+<h3 id="get_continuous_patches">get_continuous_patches</h3>
+<p><a href="https://github.com/Industry-Time-Series/industry-ts/blob/main/industryts/processing/filtering.py/#L12">source</a></p>
+<pre><code class="language-python">.get_continuous_patches(
+   data: Union[pd.DataFrame, np.ndarray], sampling_time: pd.Timedelta = None,
+   min_length: Union[str, int] = 0, drop_leading: int = 0, drop_trailing: int = 0,
+   return_num_index: bool = False
+)
+</code></pre>
+<hr />
+<p>Function to extract the time limits for all continuous patches of data.</p>
+<p>In the context of industrial processes, each continuous patch may be
+associated with a batch, or simply a period of time where the process is
+continuously active between shutdowns.</p>
+<p>This function is often used in conjunction with a function for removivng
+samples in the data that were collected in periods of shutdown.</p>
+<p><strong>Args</strong></p>
+<ul>
+<li><strong>data</strong> (pd.DataFrame) : The data to obtain the start and end timestamps.</li>
+<li><strong>sampling_time</strong> (pd.Timedelta) : Sampling time. If None, it will be
+    inferred from the data index. Defaults to None.</li>
+<li><strong>min_length</strong> (str, int) : The minimum duration to consider a patch as</li>
+<li><strong>drop_leading</strong> (int, optional) : Number of samples to drop from
+    the start of each patch of data. Defaults to 0.</li>
+<li><strong>drop_trailing</strong> (int, optional) : Number of samples to drop from the end
+    of each patch of data. Defaults to 0.</li>
+<li><strong>return_num_index</strong> (bool, optional) : If True, the function will return
+    the row number of the start and end of each patch,
+    instead of the timestamp index (if available).</li>
+</ul>
+<p>valid. If 'str', it must be a string that can be converted to a
+pd.Timedelta. If 'int', it must be an integer representing the number
+of samples. Defaults to 0, which means that all patches will be
+considered.</p>
+<p><strong>Returns</strong></p>
+<ul>
+<li><strong>patches</strong> (list) : The list of dicts containing the start and end
+    of each patch.</li>
+</ul>
+<hr />
+<h3 id="rm_stopped_operation">rm_stopped_operation</h3>
+<p><a href="https://github.com/Industry-Time-Series/industry-ts/blob/main/industryts/processing/filtering.py/#L108">source</a></p>
+<pre><code class="language-python">.rm_stopped_operation(
+   data: pd.DataFrame, rm_events_mask: np.ndarray, rm_interval_start: Union[str,
+   pd.Timedelta] = '0S', rm_interval_stop: Union[str, pd.Timedelta] = '0S',
+   minimum_interval: Union[str, pd.Timedelta] = '0S',
+   return_shutdown_dict: bool = False
+)
+</code></pre>
+<hr />
+<p>Remove all samples in rm_events_mask, plus/minus stop_interval.</p>
+<p><strong>Args</strong></p>
+<ul>
+<li><strong>data</strong> (pd.DataFrame) : data to be processed, must have datetime indexing</li>
+<li><strong>rm_events_mask</strong> (ndarray) : boolean ndarray with length equal to number
+                     of rows in data, where rows to be removed are True</li>
+<li><strong>rm_interval_start</strong> (Union[str, pd.Timedelta]) : time interval to be
+                        removed before the events in the mask</li>
+<li><strong>rm_interval_stop</strong> (Union[str, pd.Timedelta]) : time interval to be
+                        removed after the events in the mask</li>
+<li><strong>minimum_interval</strong> (string) : mininum duration of a stop</li>
+<li><strong>return_shutdown_dict</strong> (bool) : if True, returns a dictionary with start
+                            and end indices of all events</li>
+</ul>
+<p><strong>Returns</strong></p>
+<ul>
+<li><strong>DataFrame</strong>  : data with the rows of rm_events_mask and samples around
+    stop_interval removed, in addition to (optionally) shutdown dict.</li>
+</ul>
+<hr />
+<h3 id="filter_static_windows">filter_static_windows</h3>
+<p><a href="https://github.com/Industry-Time-Series/industry-ts/blob/main/industryts/processing/filtering.py/#L193">source</a></p>
+<pre><code class="language-python">.filter_static_windows(
+   data: pd.DataFrame, columns: list = None, threshold: int = 10,
+   remove_window: bool = False, return_n_removed: bool = True
+)
+</code></pre>
+<hr />
+<p>Filter windows where there is no variation for 'threshold' consecutive
+samples. In other words, replace static windows for null values or
+remove windows, where a window is considered static if the value of the
+series remains unchanged for at least 'threshold' samples.</p>
+<p><strong>Args</strong></p>
+<ul>
+<li><strong>data</strong> (pd.DataFrame) : Dataframe with the values to be analyzed</li>
+<li><strong>columns</strong> (list, optional) : Columns to check if the windows are static.
+    Defaults to [].</li>
+<li><strong>threshold</strong> (int, optional) : Minimum length of sequence of samples with
+    the same value to remove. Defaults to 10.</li>
+<li><strong>remove_window</strong> (bool, optional) : If True, removes the static windows.
+    If False, replace static windows with NA. Defaults to False.</li>
+<li><strong>return_n_removed</strong> (bool, optional) : If True, returns the amount of
+    removed samples for every column. Defaults to True.</li>
+</ul>
+<p><strong>Returns</strong></p>
+<ul>
+<li><strong>DataFrame</strong>  : Dataframe without the static windows (or NAs inplace).</li>
+<li><strong>DataFrame</strong>  : Columns with amount of static windows removed (or NAs
+inplace).</li>
+</ul>
+<hr />
+<h3 id="remove_static_columns">remove_static_columns</h3>
+<p><a href="https://github.com/Industry-Time-Series/industry-ts/blob/main/industryts/processing/filtering.py/#L265">source</a></p>
+<pre><code class="language-python">.remove_static_columns(
+   df: pd.DataFrame, min_std_cv: float = 0.01, columns: list = None,
+   return_removed: bool = True
+)
+</code></pre>
+<hr />
+<p>Checks if the values of the column don't change a minimum value,
+that would result in bad feature</p>
+<p><strong>Args</strong></p>
+<ul>
+<li><strong>df</strong> (pd.DataFrame) : Process' dataframe</li>
+<li><strong>min_std_cv</strong> (float, optional) : Minimum variation coefficient.
+    Defaults to 0.01.</li>
+<li><strong>columns</strong> (list, optional) : List of columns to check. If None, all
+    columns are checked. Defaults to None.</li>
+<li><strong>return_removed</strong> (bool, optional) : If True, returns the removed columns
+and its coefficient of variation. Defaults to True.</li>
+</ul>
+<p><strong>Returns</strong></p>
+<ul>
+<li><strong>DataFrame</strong>  : The dataframe without the columns that don't change</li>
+<li><strong>DataFrame</strong>  : Dataframe with the columns that don't change and their
+    coefficient of variation</li>
+</ul>
+<hr />
+<h3 id="format_start">format_start</h3>
+<p><a href="https://github.com/Industry-Time-Series/industry-ts/blob/main/industryts/processing/filtering.py/#L311">source</a></p>
+<pre><code class="language-python">.format_start(
+   df: pd.DataFrame, s: int = 0, m: int = 0, h: int = 0
+)
+</code></pre>
+<hr />
+<p>Function to remove (if necessary) the first rows of the data in
+order to have the first row in a specific format.</p>
+<p><strong>Args</strong></p>
+<ul>
+<li><strong>df</strong> (pd.DataFrame) : df whose index is in datetime format.</li>
+<li><strong>s</strong> (int) : initial second, with all windows starting with this second.</li>
+<li><strong>m</strong> (int) : initial minute, with all windows starting with this minute.</li>
+<li><strong>h</strong> (int) : if 0, initial hours are even; if 1, initial hours are odd.</li>
+</ul>
+<p><strong>Returns</strong></p>
+<ul>
+<li><strong>DataFrame</strong>  : with the specified format.</li>
+</ul>
+<hr />
+<h3 id="remove_almost_static_columns">remove_almost_static_columns</h3>
+<p><a href="https://github.com/Industry-Time-Series/industry-ts/blob/main/industryts/processing/filtering.py/#L345">source</a></p>
+<pre><code class="language-python">.remove_almost_static_columns(
+   df: pd.DataFrame, columns: list = None, threshold: float = 0.9
+)
+</code></pre>
+<hr />
+<p>Remove columns that have almost static values. The threshold is defined
+by the user. Sometimes the column has a value that is almost static, but
+there are some samples that have a different value. For example, the
+variation coefficient is above the threshold, but for most of the samples
+the value is the same. This function removes these columns.</p>
+<p><strong>Args</strong></p>
+<ul>
+<li><strong>df</strong> (pd.DataFrame) : Dataframe with columns</li>
+<li><strong>columns</strong> (list) : Columns to be removed</li>
+</ul>
+<p><strong>Returns</strong></p>
+<ul>
+<li><strong>DataFrame</strong>  : Dataframe without almost static columns</li>
+</ul>
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+        <a href="../featureengineering/" class="md-footer__link md-footer__link--prev" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              featureengineering
+            </div>
+          </div>
+        </a>
+      
+      
+        <a href="../timestamps/" class="md-footer__link md-footer__link--next" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              timestamps
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Industry-Time-Series
+          </div>
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+        
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "instant"], "search": "../../../../assets/javascripts/workers/search.d351de03.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.a1609d9a.min.js"></script>
+      
+    
+  </body>
+</html>
