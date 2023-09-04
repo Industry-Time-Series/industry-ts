@@ -6,7 +6,10 @@ import pandas as pd
 import numpy as np
 
 from typing import Union
+
 from processing.timestamps import infer_sampling_time
+
+from pandas.tseries.frequencies import to_offset
 
 
 def get_continuous_patches(
@@ -136,20 +139,20 @@ def rm_stopped_operation(data: pd.DataFrame, rm_events_mask: np.ndarray,
             stop_interval removed, in addition to (optionally) shutdown dict.
     """
     # First of all, we convert the time intervals to pd.Timedelta objects
-    if type(rm_interval_start) == str:
+    if isinstance(rm_interval_start, str):
         rm_interval_start = pd.to_timedelta(rm_interval_start)
-    if type(rm_interval_stop) == str:
+    if isinstance(rm_interval_stop, str):
         rm_interval_stop = pd.to_timedelta(rm_interval_stop)
-    if type(minimum_interval) == str:
+    if isinstance(minimum_interval, str):
         minimum_interval = pd.to_timedelta(minimum_interval)
 
     dataset = data.copy()
     # All time instants where events are happening
     rm_events_idx = dataset[rm_events_mask].index
-    freq = pd.infer_freq(dataset.index[:10])
-    if len(str(freq)) == 1:
-        freq = f"1{freq}"
-    t_s = pd.to_timedelta(freq)
+    # Sampling time
+    t_s = infer_sampling_time(dataset)
+    offset = to_offset(t_s)
+    freq = offset.freqstr
 
     # All time instants where events are happening (in the index), with an
     # indicator (series value equal to 1) of whether that instant is the start
@@ -265,17 +268,21 @@ def filter_static_windows(data: pd.DataFrame, columns: list = None,
 def remove_static_columns(df: pd.DataFrame, min_std_cv: float = 0.01,
                           columns: list = None,
                           return_removed: bool = True):
-    """Checks if the values of the column don't change a minimum value,
-        that would result in bad feature
+    """
+    Removes columns for which the coefficient of variation is below a selected
+        threshold.
+    
+        If the mean of the column is 0, the standard deviation is used instead
+        of the coefficient of variation.
 
     Args:
-        df (pd.DataFrame): Process' dataframe
+        df (pd.DataFrame): Process dataframe
         min_std_cv (float, optional): Minimum variation coefficient.
             Defaults to 0.01.
         columns (list, optional): List of columns to check. If None, all
             columns are checked. Defaults to None.
         return_removed (bool, optional): If True, returns the removed columns
-        and its coefficient of variation. Defaults to True.
+            and their coefficient of variation. Defaults to True.
 
     Returns:
         pd.DataFrame: The dataframe without the columns that don't change
@@ -300,6 +307,11 @@ def remove_static_columns(df: pd.DataFrame, min_std_cv: float = 0.01,
             if col_std == 0:
                 df = df.drop(col, axis=1)
                 column_coef_var[col] = 0
+            else:
+                if np.abs(col_std) <= min_std_cv:
+                    df = df.drop(col, axis=1)
+                    column_coef_var[col] = col_cv
+
     coef_var_pd = pd.DataFrame.from_dict(column_coef_var, orient='index',
                                          columns=['coef_var'])
     if return_removed:
@@ -313,6 +325,9 @@ def format_start(df: pd.DataFrame, s: int = 0, m: int = 0,
     """
     Function to remove (if necessary) the first rows of the data in
         order to have the first row in a specific format.
+
+    If the formatting is not possible, the function returns the original
+        dataframe.
 
     Args:
 
@@ -341,28 +356,3 @@ def format_start(df: pd.DataFrame, s: int = 0, m: int = 0,
         df = df.loc[first_match:]
     return df
 
-
-def remove_almost_static_columns(df: pd.DataFrame,
-                                 columns: list = None,
-                                 threshold: float = 0.9) -> pd.DataFrame:
-    """Remove columns that have almost static values. The threshold is defined
-    by the user. Sometimes the column has a value that is almost static, but
-    there are some samples that have a different value. For example, the
-    variation coefficient is above the threshold, but for most of the samples
-    the value is the same. This function removes these columns.
-
-    Args:
-        df (pd.DataFrame): Dataframe with columns
-        columns (list): Columns to be removed
-
-    Returns:
-        pd.DataFrame: Dataframe without almost static columns
-    """
-    if columns is None:
-        columns = df.columns
-    for col in columns:
-        n_most_common_value = df[col].value_counts().iloc[0]
-        if n_most_common_value >= df.shape[0] * threshold:
-            df.drop(columns=col, axis=1, inplace=True)
-
-    return df
