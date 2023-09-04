@@ -19,11 +19,11 @@ def ar_process(coefs: list, samples: int = 100, noise: float = 0
 
     Args:
         coefs (list): list with coefficients of lagged measurements of
-        the series. The order of the AR process will be defined by the number
-        of defined coefficients. For example, if coefs = [0.5, 0.3], the
-        generated series will be an AR(2) process, where 0.5 is the coefficient
-        of the first lagged measurement and 0.3 is the coefficient of the
-        second lagged measurement.
+          the series. The order of the AR process will be defined by the number
+          of defined coefficients. For example, if coefs = [0.5, 0.3], the
+          generated series will be an AR(2) process, where 0.5 is the
+          coefficient of the first lagged measurement and 0.3 is the
+          coefficient of the second lagged measurement.
         samples (int): number of data points to be generated. Default is 100.
         noise (float): standard deviation of the noise to be added to the
         measurements. Default is 0, which means no noise.
@@ -67,14 +67,14 @@ def ma_process(coefs: list, samples: int = 100, noise: float = 0
 
     Args:
         coefs (list): list with coefficients of lagged measurements of
-        the series. The order of the MA process will be defined by the number
-        of defined coefficients. For example, if coefs = [0.5, 0.3], the
-        generated series will be an MA(2) process, where 0.5 is the coefficient
-        of the first lagged measurement and 0.3 is the coefficient of the
-        second lagged measurement.
+          the series. The order of the MA process will be defined by the number
+          of defined coefficients. For example, if coefs = [0.5, 0.3], the
+          generated series will be an MA(2) process, where 0.5 is the
+          coefficient of the first lagged measurement and 0.3 is the
+          coefficient of the second lagged measurement.
         samples (int): number of data points to be generated. Default is 100.
         noise (float): standard deviation of the noise to be added to the
-        measurements. Default is 0, which means no noise.
+          measurements. Default is 0, which means no noise.
 
     Returns:
         series: array with the generated MA process.
@@ -166,32 +166,36 @@ def trend_component(samples: int = 100, slope: float = 0.1,
     return np.array(y)
 
 
-def discontinuous_timeseries(start_date: Union[str, pd.Timestamp],
-                             end_date: Union[str, pd.Timestamp],
+def discontinuous_timeseries(start_timestamp: Union[str, pd.Timestamp],
+                             end_timestamp: Union[str, pd.Timestamp],
                              freq: Union[str, pd.Timedelta],
                              num_discontinuities: int,
                              is_categorical: bool = False) -> pd.Series:
     """
-    Generate a discontinuous time series with random data.
+    Generate a random discontinuous time series with given start and end
+    timestamps and frequency.
 
     Args:
-        start_date (str or Timestamp): start date of the time series.
-        end_date (str or Timestamp): end date of the time series.
+        start_timestamp (str or Timestamp): start date of the time series.
+        end_timestamp (str or Timestamp): end date of the time series.
         freq (str or Timedelta): frequency of the time series.
         num_discontinuities (int): number of discontinuity points to be
-        generated.
+          generated.
+        is_categorical (bool): if True, the time series will be categorical
+          with levels 'A', 'B', 'C' and 'D'. Default is False.
 
     Returns:
         ts (Series): discontinuous time series with random data.
     """
     # Create a date range with specified frequency
-    if isinstance(start_date, str):
-        start_date = pd.Timestamp(start_date)
-    if isinstance(end_date, str):
-        end_date = pd.Timestamp(end_date)
+    if isinstance(start_timestamp, str):
+        start_timestamp = pd.Timestamp(start_timestamp)
+    if isinstance(end_timestamp, str):
+        end_timestamp = pd.Timestamp(end_timestamp)
     if isinstance(freq, str):
         freq = pd.Timedelta(freq)
-    date_range = pd.date_range(start=start_date, end=end_date, freq=freq)
+    date_range = pd.date_range(
+        start=start_timestamp, end=end_timestamp, freq=freq)
     # Randomly select discontinuity points
     discontinuity_points = np.random.choice(date_range, num_discontinuities,
                                             replace=False)
@@ -207,33 +211,35 @@ def discontinuous_timeseries(start_date: Union[str, pd.Timestamp],
     return ts
 
 
-def part_static_timeseries(start_date: Union[str, pd.Timestamp],
-                           end_date: Union[str, pd.Timestamp],
+def part_static_timeseries(start_timestamp: Union[str, pd.Timestamp],
+                           end_timestamp: Union[str, pd.Timestamp],
                            frequency: Union[str, pd.Timedelta],
                            n_samples_static: int,
                            value_static: float = 1.0) -> pd.DataFrame:
     """Generate a time series with a part that is static.
 
     Args:
-        start_date (Union[str, pd.Timestamp]): Start date of the time series.
-        end_date (Union[str, pd.Timestamp]): End date of the time series.
+        start_timestamp (Union[str, pd.Timestamp]): Start date of the time
+          series.
+        end_timestamp (Union[str, pd.Timestamp]): End date of the time series.
         n_samples_static (int): Number of samples that will be static.
 
     Raises:
         ValueError: Error raised if the number of samples is less than the
-        number of static samples.
+          number of static samples.
 
     Returns:
         pd.DataFrame: Time series with a part that is static.
     """
-    if isinstance(start_date, str):
-        start_date = pd.Timestamp(start_date)
-    if isinstance(end_date, str):
-        end_date = pd.Timestamp(end_date)
+    if isinstance(start_timestamp, str):
+        start_timestamp = pd.Timestamp(start_timestamp)
+    if isinstance(end_timestamp, str):
+        end_timestamp = pd.Timestamp(end_timestamp)
     if isinstance(frequency, str):
         frequency = pd.Timedelta(frequency)
     # Generate a DatetimeIndex with a frequency of 1 minute
-    dt_index = pd.date_range(start=start_date, end=end_date, freq=frequency)
+    dt_index = pd.date_range(
+        start=start_timestamp, end=end_timestamp, freq=frequency)
 
     # Create 3 random float columns
     col1 = np.random.randn(len(dt_index))
