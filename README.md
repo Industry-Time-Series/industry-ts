@@ -27,6 +27,7 @@ To use the library, you can clone the repository and install it with pip:
 ```bash
 git clone https://github.com/Industry-Time-Series/industry-ts.git
 cd industry-ts
+git checkout packaging
 pip install .
 ```
 
