@@ -64,7 +64,7 @@ def counts_ratio_per_patch(timeseries: pd.Series, patches_dicts: list,
         # * Since the patch does not necessarily has all the values, we use
         # * its value counts to update the patches values
         for key, _ in values_event.items():
-            patch_values[key] = values_event[key]/size_event
+            patch_values[key] = values_event[key] / size_event
 
         if return_timestamps:
             patch_values["start"] = start
