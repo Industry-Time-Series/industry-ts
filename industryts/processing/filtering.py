@@ -67,7 +67,7 @@ def get_continuous_patches(
             min_length = pd.to_timedelta('0S')
         else:
             raise ValueError("min_length must be a string if data index is "
-                                "a DatetimeIndex.")
+                             "a DatetimeIndex.")
     else:
         idx_disc = data.index.to_series().diff().gt(1).astype(int)
         if isinstance(min_length, str):
@@ -164,7 +164,7 @@ def rm_stopped_operation(data: pd.DataFrame, rm_events_mask: np.ndarray,
     # Subtract one because the last event ends on the last sample before the
     # next event starts. Add the last sample "t.shape[0]-1" as the end of the
     # last event.
-    event_ends = np.r_[np.where(t == 1)[0]-1, t.shape[0]-1]
+    event_ends = np.r_[np.where(t == 1)[0] - 1, t.shape[0] - 1]
 
     # List of dicts containing start and end of all events
     shutdown_dicts = []
@@ -246,7 +246,7 @@ def filter_static_windows(data: pd.DataFrame, columns: list = None,
                     # If remove is True, remove the window
                     if remove_window:
                         # * Drop including the 'end' sample
-                        data = data.drop(data[start:end+1].index)
+                        data = data.drop(data[start:(end + 1)].index)
                     else:
                         # * Replace the window with null values
                         data.loc[start:end, column] = np.nan
@@ -271,7 +271,7 @@ def remove_static_columns(df: pd.DataFrame, min_std_cv: float = 0.01,
     """
     Removes columns for which the coefficient of variation is below a selected
         threshold.
-    
+
         If the mean of the column is 0, the standard deviation is used instead
         of the coefficient of variation.
 
@@ -355,4 +355,3 @@ def format_start(df: pd.DataFrame, s: int = 0, m: int = 0,
         first_match = df.index[matches].min()
         df = df.loc[first_match:]
     return df
-
