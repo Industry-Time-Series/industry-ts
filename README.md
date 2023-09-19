@@ -2,7 +2,7 @@
 
 ## Time Series Manipulation for Industry Data
 
-This repository hosts the **industry-ts**: _Indusstry Time Series_ Library --- a Python library that provides functions to manipulate time series collected from industrial contexts.
+This repository hosts the **industry-ts**: _Industry Time Series_ Library --- a Python library that provides functions to manipulate time series collected from industrial contexts.
 
 This project aims to address the necessity for open-source tools developed for solving problems with data collected from industrial process. 
 
