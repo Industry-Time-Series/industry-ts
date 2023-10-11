@@ -6,8 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "industryts"
 version = "1.0"
 authors = [
-  { name="Alexsander Costa", email="alexsandercaac@gmail.com" },
-  { name="Pedro Chitarra", email="pedrochitarra@gmail.com" },
+  { name="Industry-Time-Series", email="alexsandercaac@gmail.com" }
 ]
 description = "Python library that provides functions to manipulate time series collected from industrial contexts"
 readme = "README.md"
