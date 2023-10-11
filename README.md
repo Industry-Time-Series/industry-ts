@@ -10,9 +10,12 @@ The modules introduced provide a variety of functions that are particularly tail
 
 ## Table of Contents
 
-- [Main Features](#main-features)
-- [How to use it](#how-to-use-it)
-- [Documentation](#documentation)
+- [Industry Time Series Library](#industry-time-series-library)
+  - [Time Series Manipulation for Industry Data](#time-series-manipulation-for-industry-data)
+  - [Table of Contents](#table-of-contents)
+  - [Main Features](#main-features)
+  - [How to use it](#how-to-use-it)
+  - [Documentation](#documentation)
 
 ## Main Features
 

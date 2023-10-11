@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta" 
+
+[project]
+name = "industryts"
+version = "1.0"
+authors = [
+  { name="Alexsander Costa", email="alexsandercaac@gmail.com" },
+  { name="Pedro Chitarra", email="pedrochitarra@gmail.com" },
+]
+description = "Python library that provides functions to manipulate time series collected from industrial contexts"
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dynamic = ["dependencies"]
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+[project.urls]
+"Homepage" = "https://github.com/Industry-Time-Series/industry-ts"
+"Docs" = "https://industry-time-series.github.io/industry-ts/"
