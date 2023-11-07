@@ -3,11 +3,12 @@
     series.
 """
 import collections.abc
+from typing import Union
 
 import numpy as np
 import pandas as pd
 
-from typing import Union
+rng = np.random.default_rng(1525)
 
 
 def ar_process(coefs: list, samples: int = 100, noise: float = 0
@@ -41,19 +42,19 @@ def ar_process(coefs: list, samples: int = 100, noise: float = 0
     y = np.zeros(samples)
     # Initial values y[0, 1, .., order]. These can be thought of as the
     # initial conditions of the AR process.
-    y[:order] = [np.random.normal() for _ in range(order)]
+    y[:order] = [rng.standard_normal() for _ in range(order)]
 
     for k in range(order, samples):
         # Get previous values of the series, reversed. This is done to
         # match the order of the coefficients.
         prev_samples = y[(k - order):k][::-1]
 
-        y[k] = np.sum(np.array(prev_samples) * coefs) + np.random.normal()
+        y[k] = np.sum(np.array(prev_samples) * coefs) + rng.standard_normal()
 
     # Since the noise is intended to emulate measurement noise, it is
     # added to the measurements after the AR process is generated.
     if noise:
-        y += np.random.normal(0, noise, samples)
+        y += rng.standard_normal(size=samples)*noise
 
     return np.array(y)
 
@@ -88,7 +89,7 @@ def ma_process(coefs: list, samples: int = 100, noise: float = 0
 
     y = np.zeros(samples)
     # White noise series of errors that will be used in the MA process
-    nu = [np.random.normal() for _ in range(samples)]
+    nu = [rng.standard_normal() for _ in range(samples)]
     # Initialize the process for k = 0 where the previous values of nu are
     # zero.
     y[0] = nu[0]
