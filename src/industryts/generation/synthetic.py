@@ -107,7 +107,7 @@ def ma_process(coefs: list, samples: int = 100, noise: float = 0
             y[k] = np.sum(np.array(prev_samples) * coefs) + nu[k]
 
     if noise:
-        y += np.random.normal(0, noise, samples)
+        y += rng.standard_normal(size=samples)*noise
 
     return np.array(y)
 
@@ -138,7 +138,7 @@ def seasonal_component(samples: int = 100, period: int = 10,
     y = amplitude * np.sin(omega * np.arange(samples))
 
     if noise:
-        y += np.random.normal(0, noise, samples)
+        y += rng.standard_normal(size=samples)*noise
 
     return np.array(y)
 
@@ -162,7 +162,7 @@ def trend_component(samples: int = 100, slope: float = 0.1,
     y = np.arange(samples) * slope + intercept
 
     if noise:
-        y += np.random.normal(0, noise, samples)
+        y += rng.standard_normal(size=samples)*noise
 
     return np.array(y)
 
@@ -198,13 +198,13 @@ def discontinuous_timeseries(start_timestamp: Union[str, pd.Timestamp],
     date_range = pd.date_range(
         start=start_timestamp, end=end_timestamp, freq=freq)
     # Randomly select discontinuity points
-    discontinuity_points = np.random.choice(date_range, num_discontinuities,
+    discontinuity_points = rng.choice(date_range, num_discontinuities,
                                             replace=False)
     # Create the time series with random data
     if is_categorical:
-        data = np.random.choice(['A', 'B', 'C', 'D'], len(date_range))
+        data = rng.choice(['A', 'B', 'C', 'D'], len(date_range))
     else:
-        data = np.random.rand(len(date_range))
+        data = rng.uniform(size=len(date_range))
     ts = pd.Series(data, index=date_range)
     # Drop NaN values at the discontinuity points
     for point in discontinuity_points:
@@ -243,9 +243,9 @@ def part_static_timeseries(start_timestamp: Union[str, pd.Timestamp],
         start=start_timestamp, end=end_timestamp, freq=frequency)
 
     # Create 3 random float columns
-    col1 = np.random.randn(len(dt_index))
-    col2 = np.random.randn(len(dt_index))
-    col3 = np.random.randn(len(dt_index))
+    col1 = rng.standard_normal(size=len(dt_index))
+    col2 = rng.standard_normal(size=len(dt_index))
+    col3 = rng.standard_normal(size=len(dt_index))
 
     if len(dt_index) < n_samples_static:
         raise ValueError('The number of samples must be greater than the '
