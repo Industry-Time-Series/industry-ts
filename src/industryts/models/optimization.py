@@ -22,6 +22,8 @@ class LeastSquaresOptimizer:
         self.method = method
         self._coefs = None
         self._fitted = False
+        # Covariance matrix used in RLS.
+        self.__p_mat = None
 
     @property
     def coefs(self):
@@ -73,10 +75,11 @@ class LeastSquaresOptimizer:
             raise ValueError("Method not implemented yet.")
         else:
             raise ValueError("Method not recognized yet.")
+        self.coefs = coefs
+
         if not inplace:
             return coefs
 
-        self.coefs = coefs
 
     @staticmethod
     def _ols(regressors: np.ndarray, targets: np.ndarray):
@@ -93,8 +96,8 @@ class LeastSquaresOptimizer:
             targets (ndarray): Vector with targets, commonly denominated the
                 y vector. Each row is an observation.
 
-        Returns:
-            coef (ndarray): Coefficients of the model.
+        Returns (optional):
+            coef (ndarray): Coefficients of the model. Will be in shape [p, 1]
         """
         return np.linalg.lstsq(regressors, targets, rcond=None)[0]
 
@@ -117,8 +120,8 @@ class LeastSquaresOptimizer:
                 construct the initial covariance matrix P. Defaults to 1e6.
             return_history (bool): Whether to return the history of the
                 coefficients. Defaults to False.
-        Returns:
-            coef (ndarray): Coefficients of the model.
+        Returns (optional):
+            coef (ndarray): Coefficients of the model. Will be in shape [p, 1]
         """
 
         # Number of observations.
@@ -126,13 +129,12 @@ class LeastSquaresOptimizer:
         # Number of regressors.
         p = regressors.shape[1]
 
-        # Initialize the covariance matrix.
-        p_mat = initial_covariance * np.eye(p)
-
-        # Initialize the coefficients.
+        # Initialize the coefficients and covariance matrix.
         if self._fitted:
             coef = self._coefs
+            p_mat = self.__p_mat
         else:
+            p_mat = initial_covariance * np.eye(p)
             coef = np.zeros(p)
         if return_history:
             coef_history = np.zeros((n, p))
@@ -175,8 +177,8 @@ class LeastSquaresOptimizer:
                 # Update the covariance matrix.
                 p_mat = (
                     ((np.eye(p) - (k_mat @ phi.T)) @ p_mat)/forgetting_factor)
-
+        self.__p_mat = p_mat
         if return_history:
             return coef_history
         else:
-            return coef
+            return coef.reshape(p, 1)
