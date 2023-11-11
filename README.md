@@ -25,7 +25,13 @@ The modules introduced provide a variety of functions that are particularly tail
 
 ## How to use it
 
-To use the library, you can clone the repository and install it with pip:
+The package is available in [PyPI](https://pypi.org/project/industryts/), and can be installed with pip:
+
+```bash
+pip install industryts
+```
+
+Alternatively, to use the library, you can clone the repository and install it with pip:
 
 ```bash
 git clone https://github.com/Industry-Time-Series/industry-ts.git
