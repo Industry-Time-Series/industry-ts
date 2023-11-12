@@ -1,0 +1,39 @@
+site_name: Industry Timeseries
+
+
+# Repository
+repo_name: Industry Timeseries
+repo_url: https://github.com/Industry-Time-Series/industry-ts
+edit_uri: ""
+# Copyright
+copyright: Industry-Time-Series
+
+docs_dir: "docs/sources"
+
+plugins:
+  - search
+
+theme:
+  name: 'material'
+  custom_dir: 'docs'
+  palette:
+    primary: 'black'
+  logo: 'its.png'
+  favicon: 'its.png'
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - instant
+nav:
+  - Home: index.md
+  - modules:
+    - industryts:
+      - generation:
+        - synthetic: modules/industryts/generation/synthetic.md
+      - models:
+        - optimization: modules/industryts/models/optimization.md
+        - univariate: modules/industryts/models/univariate.md
+      - processing:
+        - featureengineering: modules/industryts/processing/featureengineering.md
+        - filtering: modules/industryts/processing/filtering.md
+        - timestamps: modules/industryts/processing/timestamps.md

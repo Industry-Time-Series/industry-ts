@@ -1,0 +1,43 @@
+copyright: Industry-Time-Series
+pages:
+  - page: "modules/industryts/processing/timestamps.md"
+    source: "industryts/processing/timestamps.py"
+    functions:
+      - infer_sampling_time
+
+  - page: "modules/industryts/processing/featureengineering.md"
+    source: "industryts/processing/featureengineering.py"
+    functions:
+      - counts_ratio_per_patch
+
+  - page: "modules/industryts/processing/filtering.md"
+    source: "industryts/processing/filtering.py"
+    functions:
+      - get_continuous_patches
+      - rm_stopped_operation
+      - filter_static_windows
+      - remove_static_columns
+      - format_start
+
+  - page: "modules/industryts/generation/synthetic.md"
+    source: "industryts/generation/synthetic.py"
+    functions:
+      - ar_process
+      - ma_process
+      - seasonal_component
+      - trend_component
+      - discontinuous_timeseries
+      - part_static_timeseries
+
+  - page: "modules/industryts/models/optimization.md"
+    source: "industryts/models/optimization.py"
+    classes:
+      - LeastSquaresOptimizer
+
+  - page: "modules/industryts/models/univariate.md"
+    source: "industryts/models/univariate.py"
+    classes:
+      - UnivariateModel
+      - AutoRegressive
+      - MovingAverage
+
