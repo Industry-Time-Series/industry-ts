@@ -14,7 +14,7 @@
     
     
       
-        <title>timestamps - Industry Timeseries</title>
+        <title>optimization - Industry Timeseries</title>
       
     
     
@@ -92,7 +92,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              timestamps
+              optimization
             
           </span>
         </div>
@@ -350,12 +350,14 @@
             
   
   
+    
+  
   
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_1_2" type="checkbox" id="__nav_2_1_2" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_1_2" type="checkbox" id="__nav_2_1_2" checked>
       
       <label class="md-nav__link" for="__nav_2_1_2">
         models
@@ -367,83 +369,6 @@
           models
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
-          
-            
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../models/optimization/" class="md-nav__link">
-        optimization
-      </a>
-    </li>
-  
-
-          
-            
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../models/univariate/" class="md-nav__link">
-        univariate
-      </a>
-    </li>
-  
-
-          
-        </ul>
-      </nav>
-    </li>
-  
-
-          
-            
-  
-  
-    
-  
-  
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-      
-      
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_1_3" type="checkbox" id="__nav_2_1_3" checked>
-      
-      <label class="md-nav__link" for="__nav_2_1_3">
-        processing
-        <span class="md-nav__icon md-icon"></span>
-      </label>
-      <nav class="md-nav" aria-label="processing" data-md-level="3">
-        <label class="md-nav__title" for="__nav_2_1_3">
-          <span class="md-nav__icon md-icon"></span>
-          processing
-        </label>
-        <ul class="md-nav__list" data-md-scrollfix>
-          
-            
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../featureengineering/" class="md-nav__link">
-        featureengineering
-      </a>
-    </li>
-  
-
-          
-            
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../filtering/" class="md-nav__link">
-        filtering
-      </a>
-    </li>
-  
-
           
             
   
@@ -460,12 +385,12 @@
       
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
-          timestamps
+          optimization
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
-        timestamps
+        optimization
       </a>
       
         
@@ -483,9 +408,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#infer_sampling_time" class="md-nav__link">
-    infer_sampling_time
+  <a href="#leastsquaresoptimizer" class="md-nav__link">
+    LeastSquaresOptimizer
   </a>
+  
+    <nav class="md-nav" aria-label="LeastSquaresOptimizer">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fit" class="md-nav__link">
+    .fit
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -493,6 +431,81 @@
   
 </nav>
       
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../univariate/" class="md-nav__link">
+        univariate
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_1_3" type="checkbox" id="__nav_2_1_3" >
+      
+      <label class="md-nav__link" for="__nav_2_1_3">
+        processing
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="processing" data-md-level="3">
+        <label class="md-nav__title" for="__nav_2_1_3">
+          <span class="md-nav__icon md-icon"></span>
+          processing
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../processing/featureengineering/" class="md-nav__link">
+        featureengineering
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../processing/filtering/" class="md-nav__link">
+        filtering
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../processing/timestamps/" class="md-nav__link">
+        timestamps
+      </a>
     </li>
   
 
@@ -541,9 +554,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#infer_sampling_time" class="md-nav__link">
-    infer_sampling_time
+  <a href="#leastsquaresoptimizer" class="md-nav__link">
+    LeastSquaresOptimizer
   </a>
+  
+    <nav class="md-nav" aria-label="LeastSquaresOptimizer">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fit" class="md-nav__link">
+    .fit
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -561,27 +587,42 @@
                 
                 
                 <h1 id="_1"></h1>
-<h3 id="infer_sampling_time">infer_sampling_time</h3>
-<pre><code class="language-python">.infer_sampling_time(
-   data: pd.DataFrame
+<h2 id="leastsquaresoptimizer">LeastSquaresOptimizer</h2>
+<pre><code class="language-python">LeastSquaresOptimizer(
+   method: str = 'OLS'
 )
 </code></pre>
 <hr />
-<p>Infers sampling time from datetime index.
-If the index is not a datetime index, it will raise an error.
-Returns the sampling time as a pd.Timedelta object.</p>
-<p>The algorithm works by taking the first 10 samples and inferring
-the frequency from them. If the frequency is not inferred, it will
-take the next 10 samples and try again. This is repeated until the
-frequency is inferred or all samples are exhausted.</p>
+<p>Class with different least squares methods.</p>
 <p><strong>Args</strong></p>
 <ul>
-<li><strong>data</strong> (pd.DataFrame) : Data frame with datetime index to infer
-  the sampling time</li>
+<li><strong>method</strong> (str) : Method to use. Is one of the following:
+    'OLS': Ordinary least squares.
+    'RLS': Recursive least squares.
+    'ELS': Extended least squares. (Not implemented yet)
+    'regOLS': Regularized least squares. (Not implemented yet)
+  Defaults to "OLS".</li>
+</ul>
+<p><strong>Methods:</strong></p>
+<h3 id="fit">.fit</h3>
+<pre><code class="language-python">.fit(
+   regressors: np.ndarray, targets: np.ndarray, inplace: bool = False, **kwargs
+)
+</code></pre>
+<hr />
+<p>Fit the model to the data.</p>
+<p><strong>Args</strong></p>
+<ul>
+<li><strong>regressors</strong> (ndarray) : Matrix with regressors, commonly denominated
+    the Phi matrix. Each column is a regressor, and each row is an
+    observation.</li>
+<li><strong>targets</strong> (ndarray) : Vector with targets, commonly denominated the
+    y vector. Each row is an observation.</li>
+<li><strong>kwargs</strong>  : Additional keyword arguments for the different methods.</li>
 </ul>
 <p><strong>Returns</strong></p>
 <ul>
-<li><strong>t_s</strong> (pd.Timedelta) : The inferred sampling time</li>
+<li><strong>coef</strong> (ndarray) : Coefficients of the model.</li>
 </ul>
                 
               
@@ -601,7 +642,7 @@ frequency is inferred or all samples are exhausted.</p>
   
     <nav class="md-footer__inner md-grid" aria-label="Footer">
       
-        <a href="../filtering/" class="md-footer__link md-footer__link--prev" rel="prev">
+        <a href="../../generation/synthetic/" class="md-footer__link md-footer__link--prev" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
           </div>
@@ -610,11 +651,25 @@ frequency is inferred or all samples are exhausted.</p>
               <span class="md-footer__direction">
                 Previous
               </span>
-              filtering
+              synthetic
             </div>
           </div>
         </a>
       
+      
+        <a href="../univariate/" class="md-footer__link md-footer__link--next" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              univariate
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+          </div>
+        </a>
       
     </nav>
   

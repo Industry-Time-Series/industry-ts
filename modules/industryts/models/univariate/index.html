@@ -373,6 +373,18 @@
             
   
   
+  
+    <li class="md-nav__item">
+      <a href="../optimization/" class="md-nav__link">
+        optimization
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
     
   
   
@@ -412,6 +424,19 @@
     UnivariateModel
   </a>
   
+    <nav class="md-nav" aria-label="UnivariateModel">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#forecast" class="md-nav__link">
+    .forecast
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -425,13 +450,6 @@
           <li class="md-nav__item">
   <a href="#fit" class="md-nav__link">
     .fit
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#forecast" class="md-nav__link">
-    .forecast
   </a>
   
 </li>
@@ -580,6 +598,19 @@
     UnivariateModel
   </a>
   
+    <nav class="md-nav" aria-label="UnivariateModel">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#forecast" class="md-nav__link">
+    .forecast
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -593,13 +624,6 @@
           <li class="md-nav__item">
   <a href="#fit" class="md-nav__link">
     .fit
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#forecast" class="md-nav__link">
-    .forecast
   </a>
   
 </li>
@@ -644,9 +668,8 @@
                 
                 <h1 id="_1"></h1>
 <h2 id="univariatemodel">UnivariateModel</h2>
-<p><a href="https://github.com/Industry-Time-Series/industry-ts/blob/main/industryts/models/univariate.py/#L12">source</a></p>
 <pre><code class="language-python">UnivariateModel(
-   order: int, family: str
+   order: int, family: str, bias: bool
 )
 </code></pre>
 <hr />
@@ -661,9 +684,25 @@
 <li><strong>order</strong>  : Order of the model.</li>
 <li><strong>family</strong>  : Family of the model.</li>
 </ul>
+<p><strong>Methods:</strong></p>
+<h3 id="forecast">.forecast</h3>
+<pre><code class="language-python">.forecast(
+   initial_conditions: Union[pd.DataFrame, np.ndarray, list] = None, horizon: int = 1
+)
+</code></pre>
+<hr />
+<p>Simulate the model forward in time.</p>
+<p><strong>Args</strong></p>
+<ul>
+<li><strong>initial_conditions</strong> (ArrayLike) : Initial conditions for the model.</li>
+<li><strong>horizon</strong> (int) : Number of steps to forecast. Defaults to 1.</li>
+</ul>
+<p><strong>Returns</strong></p>
+<ul>
+<li><strong>forecast</strong> (ndarray) : Forecasted values.</li>
+</ul>
 <hr />
 <h2 id="autoregressive">AutoRegressive</h2>
-<p><a href="https://github.com/Industry-Time-Series/industry-ts/blob/main/industryts/models/univariate.py/#L99">source</a></p>
 <pre><code class="language-python">AutoRegressive(
    p: int = 1, bias: bool = True
 )
@@ -683,33 +722,14 @@
 </ul>
 <p><strong>Methods:</strong></p>
 <h3 id="fit">.fit</h3>
-<p><a href="https://github.com/Industry-Time-Series/industry-ts/blob/main/industryts/models/univariate.py/#L125">source</a></p>
 <pre><code class="language-python">.fit(
    data: Union[pd.DataFrame, np.ndarray]
 )
 </code></pre>
 <hr />
 <p>Fit the model to the data.</p>
-<h3 id="forecast">.forecast</h3>
-<p><a href="https://github.com/Industry-Time-Series/industry-ts/blob/main/industryts/models/univariate.py/#L140">source</a></p>
-<pre><code class="language-python">.forecast(
-   initial_condition: Union[pd.DataFrame, np.ndarray], horizon: int = 1
-)
-</code></pre>
-<hr />
-<p>Simulate the model forward in time.</p>
-<p><strong>Args</strong></p>
-<ul>
-<li><strong>initial_conditions</strong> (ArrayLike) : Initial conditions for the model.</li>
-<li><strong>horizon</strong> (int) : Number of steps to forecast. Defaults to 1.</li>
-</ul>
-<p><strong>Returns</strong></p>
-<ul>
-<li><strong>forecast</strong> (ndarray) : Forecasted values.</li>
-</ul>
 <hr />
 <h2 id="movingaverage">MovingAverage</h2>
-<p><a href="https://github.com/Industry-Time-Series/industry-ts/blob/main/industryts/models/univariate.py/#L174">source</a></p>
 <pre><code class="language-python">MovingAverage(
    q: int = 1, bias: bool = True
 )
@@ -729,7 +749,6 @@
 </ul>
 <p><strong>Methods:</strong></p>
 <h3 id="fit_1">.fit</h3>
-<p><a href="https://github.com/Industry-Time-Series/industry-ts/blob/main/industryts/models/univariate.py/#L194">source</a></p>
 <pre><code class="language-python">.fit(
    data: Union[pd.DataFrame, np.ndarray], n_iterations: int = 100
 )
@@ -754,7 +773,7 @@
   
     <nav class="md-footer__inner md-grid" aria-label="Footer">
       
-        <a href="../../generation/synthetic/" class="md-footer__link md-footer__link--prev" rel="prev">
+        <a href="../optimization/" class="md-footer__link md-footer__link--prev" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
           </div>
@@ -763,7 +782,7 @@
               <span class="md-footer__direction">
                 Previous
               </span>
-              synthetic
+              optimization
             </div>
           </div>
         </a>

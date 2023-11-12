@@ -373,6 +373,18 @@
   
   
     <li class="md-nav__item">
+      <a href="../../models/optimization/" class="md-nav__link">
+        optimization
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../models/univariate/" class="md-nav__link">
         univariate
       </a>
@@ -606,7 +618,6 @@
                 
                 <h1 id="_1"></h1>
 <h3 id="get_continuous_patches">get_continuous_patches</h3>
-<p><a href="https://github.com/Industry-Time-Series/industry-ts/blob/main/industryts/processing/filtering.py/#L15">source</a></p>
 <pre><code class="language-python">.get_continuous_patches(
    data: Union[pd.DataFrame, np.ndarray], sampling_time: pd.Timedelta = None,
    min_length: Union[str, int] = 0, drop_leading: int = 0, drop_trailing: int = 0,
@@ -645,7 +656,6 @@ considered.</p>
 </ul>
 <hr />
 <h3 id="rm_stopped_operation">rm_stopped_operation</h3>
-<p><a href="https://github.com/Industry-Time-Series/industry-ts/blob/main/industryts/processing/filtering.py/#L111">source</a></p>
 <pre><code class="language-python">.rm_stopped_operation(
    data: pd.DataFrame, rm_events_mask: np.ndarray, rm_interval_start: Union[str,
    pd.Timedelta] = '0S', rm_interval_stop: Union[str, pd.Timedelta] = '0S',
@@ -675,7 +685,6 @@ considered.</p>
 </ul>
 <hr />
 <h3 id="filter_static_windows">filter_static_windows</h3>
-<p><a href="https://github.com/Industry-Time-Series/industry-ts/blob/main/industryts/processing/filtering.py/#L196">source</a></p>
 <pre><code class="language-python">.filter_static_windows(
    data: pd.DataFrame, columns: list = None, threshold: int = 10,
    remove_window: bool = False, return_n_removed: bool = True
@@ -706,7 +715,6 @@ inplace).</li>
 </ul>
 <hr />
 <h3 id="remove_static_columns">remove_static_columns</h3>
-<p><a href="https://github.com/Industry-Time-Series/industry-ts/blob/main/industryts/processing/filtering.py/#L268">source</a></p>
 <pre><code class="language-python">.remove_static_columns(
    df: pd.DataFrame, min_std_cv: float = 0.01, columns: list = None,
    return_removed: bool = True
@@ -735,7 +743,6 @@ of the coefficient of variation.</p>
 </ul>
 <hr />
 <h3 id="format_start">format_start</h3>
-<p><a href="https://github.com/Industry-Time-Series/industry-ts/blob/main/industryts/processing/filtering.py/#L323">source</a></p>
 <pre><code class="language-python">.format_start(
    df: pd.DataFrame, s: int = 0, m: int = 0, h: int = 0
 )
