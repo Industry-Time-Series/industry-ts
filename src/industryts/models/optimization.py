@@ -136,9 +136,12 @@ class LeastSquaresOptimizer:
         p = regressors.shape[1]
 
         # Initialize the coefficients and covariance matrix.
-        if self._fitted:
+        if self._fitted and self.__p_mat is not None:
             coef = self._coefs
             p_mat = self.__p_mat
+        elif self._fitted and self.__p_mat is None:
+            coef = self._coefs
+            p_mat = initial_covariance * np.eye(p)
         else:
             p_mat = initial_covariance * np.eye(p)
             coef = np.zeros(p)
