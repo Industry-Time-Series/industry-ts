@@ -68,7 +68,11 @@ class LeastSquaresOptimizer:
         if self.method == "OLS":
             coefs = self._ols(regressors, targets)
         elif self.method == "RLS":
-            coefs = self._rls(regressors, targets, **kwargs)
+            if kwargs['return_history']:
+                coefs_hist, coefs = self._rls(regressors, targets, **kwargs)
+            else:
+                coefs = self._rls(regressors, targets, **kwargs)
+
         elif self.method == "ELS":
             raise ValueError("Method not implemented yet.")
         elif self.method == "regOLS":
@@ -78,6 +82,8 @@ class LeastSquaresOptimizer:
         self.coefs = coefs
 
         if not inplace:
+            if 'return_history' in kwargs and kwargs['return_history']:
+                return coefs_hist, coefs
             return coefs
 
 
@@ -158,7 +164,7 @@ class LeastSquaresOptimizer:
                     ((np.eye(p) - (k_mat @ phi.T)) @ p_mat)/forgetting_factor)
 
                 # Save the coefficients.
-                coef_history[i, :] = coef
+                coef_history[i, :] = np.squeeze(coef)
         else:
             # Iterate over the observations.
             for i in range(n):
@@ -179,6 +185,6 @@ class LeastSquaresOptimizer:
                     ((np.eye(p) - (k_mat @ phi.T)) @ p_mat)/forgetting_factor)
         self.__p_mat = p_mat
         if return_history:
-            return coef_history
+            return coef_history, coef_history[-1].reshape(p, 1)
         else:
             return coef.reshape(p, 1)
