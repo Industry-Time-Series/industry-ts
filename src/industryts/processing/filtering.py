@@ -1,11 +1,10 @@
 """
     Module with functions for filtering samples.
 """
+from typing import Union
 
 import pandas as pd
 import numpy as np
-
-from typing import Union
 
 from processing.timestamps import infer_sampling_time
 
@@ -75,12 +74,12 @@ def get_continuous_patches(
                              "not a DatetimeIndex.")
 
     # Index of timeline array "t" where each event window begins
-    event_starts = np.r_[0, np.where(idx_disc != 0)[0]]
+    event_starts = np.r_[0, np.nonzero(idx_disc)[0]]
     # Index of timeline array "t" where each event window ends
     # Subtract one because the last event ends on the last sample before the
     # next event starts. Add the last sample "t.shape[0]-1" as the end of the
     # last event.
-    event_ends = np.r_[np.where(idx_disc != 0)[0] - 1, idx_disc.shape[0] - 1]
+    event_ends = np.r_[np.nonzero(idx_disc)[0] - 1, idx_disc.shape[0] - 1]
     patches_dicts = []
 
     # Dict containing start and end of all events
@@ -100,10 +99,9 @@ def get_continuous_patches(
                             {"start": start_time, "end": end_time})
     else:
         for start, end in zip(event_starts, event_ends):
-            if end >= start:
-                if end - start >= min_length:
-                    patches_dicts.append(
-                        {"start": start, "end": end})
+            if (end >= start)  & (end - start >= min_length):
+                patches_dicts.append(
+                    {"start": start, "end": end})
 
     return patches_dicts
 
@@ -159,12 +157,12 @@ def rm_stopped_operation(data: pd.DataFrame, rm_events_mask: np.ndarray,
     # (first sample) of an event window.
     t = rm_events_idx.to_series().diff().gt(t_s).astype(int)
     # Index of TIMELINE ARRAY "t" where each event window begins
-    event_starts = np.r_[0, np.where(t == 1)[0]]
+    event_starts = np.r_[0, np.nonzero(t)[0]]
     # Index of TIMELINE ARRAY "t" where each event window ends
     # Subtract one because the last event ends on the last sample before the
     # next event starts. Add the last sample "t.shape[0]-1" as the end of the
     # last event.
-    event_ends = np.r_[np.where(t == 1)[0]-1, t.shape[0]-1]
+    event_ends = np.r_[np.nonzero(t)[0]-1, t.shape[0]-1]
 
     # List of dicts containing start and end of all events
     shutdown_dicts = []
@@ -226,7 +224,7 @@ def filter_static_windows(data: pd.DataFrame, columns: list = None,
         time_static = 0
         series = data[column]
         series_diff = series.diff()
-        series_diff_0 = np.where(series_diff == 0)[0]
+        series_diff_0 = np.nonzero(series_diff)[0]
         if list(series_diff_0):
             dis_points_start = [series_diff_0[0]] + list(series_diff_0[
                 np.where(np.diff(series_diff_0,
@@ -271,7 +269,7 @@ def remove_static_columns(df: pd.DataFrame, min_std_cv: float = 0.01,
     """
     Removes columns for which the coefficient of variation is below a selected
         threshold.
-    
+
         If the mean of the column is 0, the standard deviation is used instead
         of the coefficient of variation.
 
@@ -316,8 +314,8 @@ def remove_static_columns(df: pd.DataFrame, min_std_cv: float = 0.01,
                                          columns=['coef_var'])
     if return_removed:
         return df, coef_var_pd
-    else:
-        return df
+
+    return df
 
 
 def format_start(df: pd.DataFrame, s: int = 0, m: int = 0,
@@ -355,4 +353,3 @@ def format_start(df: pd.DataFrame, s: int = 0, m: int = 0,
         first_match = df.index[matches].min()
         df = df.loc[first_match:]
     return df
-

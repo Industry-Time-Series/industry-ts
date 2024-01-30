@@ -68,7 +68,11 @@ class LeastSquaresOptimizer:
         if self.method == "OLS":
             coefs = self._ols(regressors, targets)
         elif self.method == "RLS":
-            coefs = self._rls(regressors, targets, **kwargs)
+            if kwargs['return_history']:
+                coefs_hist, coefs = self._rls(regressors, targets, **kwargs)
+            else:
+                coefs = self._rls(regressors, targets, **kwargs)
+
         elif self.method == "ELS":
             raise ValueError("Method not implemented yet.")
         elif self.method == "regOLS":
@@ -78,8 +82,9 @@ class LeastSquaresOptimizer:
         self.coefs = coefs
 
         if not inplace:
+            if 'return_history' in kwargs and kwargs['return_history']:
+                return coefs_hist, coefs
             return coefs
-
 
     @staticmethod
     def _ols(regressors: np.ndarray, targets: np.ndarray):
@@ -105,6 +110,7 @@ class LeastSquaresOptimizer:
              targets: np.ndarray,
              forgetting_factor: float = 0.99,
              initial_covariance: float = 1e6,
+             limit_covariance_trace: float = None,
              return_history: bool = False):
         """
         Recursive least squares.
@@ -130,55 +136,49 @@ class LeastSquaresOptimizer:
         p = regressors.shape[1]
 
         # Initialize the coefficients and covariance matrix.
-        if self._fitted:
+        if self._fitted and self.__p_mat is not None:
             coef = self._coefs
             p_mat = self.__p_mat
+        elif self._fitted and self.__p_mat is None:
+            coef = self._coefs
+            p_mat = initial_covariance * np.eye(p)
         else:
             p_mat = initial_covariance * np.eye(p)
             coef = np.zeros(p)
-        if return_history:
-            coef_history = np.zeros((n, p))
 
-            # Iterate over the observations.
-            for i in range(n):
-                # Get regressors and target for the current observation.
-                phi = regressors[i, :].reshape(p, -1)
-                y = targets[i]
+        coef_history = np.zeros((n, p))
 
-                # Calculate the gain vector.
-                k_mat_aux = np.linalg.pinv(
-                    forgetting_factor + phi.T @ (p_mat @ phi))
-                k_mat = (p_mat @ phi) @ k_mat_aux
+        # Iterate over the observations.
+        for i in range(n):
+            # Get regressors and target for the current observation.
+            phi = regressors[i, :].reshape(p, -1)
+            y = targets[i]
 
-                # Update the coefficients.
-                coef += k_mat @ (y - phi.T @ coef)
+            # Calculate the gain vector.
+            k_mat_aux = np.linalg.pinv(
+                forgetting_factor + phi.T @ (p_mat @ phi))
+            k_mat = (p_mat @ phi) @ k_mat_aux
 
-                # Update the covariance matrix.
-                p_mat = (
+            # Update the coefficients.
+            coef += k_mat @ (y - phi.T @ coef)
+
+            # Update the covariance matrix.
+            p_mat_cand = (
                     ((np.eye(p) - (k_mat @ phi.T)) @ p_mat)/forgetting_factor)
 
-                # Save the coefficients.
-                coef_history[i, :] = coef
-        else:
-            # Iterate over the observations.
-            for i in range(n):
-                # Get regressors and target for the current observation.
-                phi = regressors[i, :].reshape(p, -1)
-                y = targets[i]
+            # If the trace of the covariance matrix is too small,
+            # it is not updated, since very small values of p_mat would
+            # lead to very small updates in the coefficients.
+            if ((limit_covariance_trace is None) or
+                    (np.trace(p_mat_cand) > limit_covariance_trace)):
+                p_mat = p_mat_cand
+            # Save the coefficients.
+            coef_history[i, :] = np.squeeze(coef)
 
-                # Calculate the gain vector.
-                k_mat_aux = np.linalg.pinv(
-                    forgetting_factor + phi.T @ (p_mat @ phi))
-                k_mat = (p_mat @ phi) @ k_mat_aux
-
-                # Update the coefficients.
-                coef += k_mat @ (y - phi.T @ coef)
-
-                # Update the covariance matrix.
-                p_mat = (
-                    ((np.eye(p) - (k_mat @ phi.T)) @ p_mat)/forgetting_factor)
+        # Save the covariance matrix.
         self.__p_mat = p_mat
+
         if return_history:
-            return coef_history
+            return coef_history, coef_history[-1].reshape(p, 1)
         else:
             return coef.reshape(p, 1)

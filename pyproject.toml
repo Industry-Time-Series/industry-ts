@@ -22,3 +22,7 @@ dependencies = {file = ["requirements.txt"]}
 [project.urls]
 "Homepage" = "https://github.com/Industry-Time-Series/industry-ts"
 "Docs" = "https://industry-time-series.github.io/industry-ts/"
+# Pytest
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
