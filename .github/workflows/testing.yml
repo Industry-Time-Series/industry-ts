@@ -19,4 +19,4 @@ jobs:
     - name: Test with pytest
       run: |
         pip install pytest pytest-cov
-        pytest --disable-warnings --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
+        python -m pytest tests/ --disable-warnings --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
