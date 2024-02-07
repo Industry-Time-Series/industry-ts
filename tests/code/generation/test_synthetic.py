@@ -3,7 +3,7 @@ Test synthetic data generation functions using pytest.
 """
 import numpy as np
 
-from src.industryts.generation.synthetic import ar_process
+from src.industryts.generation.synthetic import ar_process, ma_process
 
 
 class TestARProcess():
@@ -34,3 +34,16 @@ class TestARProcess():
         assert len(output) == 100
 
 
+class TestMAProcess():
+    """Test the MA process generator."""
+    def test_output_length(self):
+        """Test that the output length is equal to the number of samples.
+        """
+        output = ma_process([0.1], samples=500, noise=0)
+        assert len(output) == 500
+
+    def test_scalar_coef(self):
+        """Test that the function can handle a scalar coefficient.
+        """
+        output = ma_process(0.2, samples=100, noise=0)
+        assert len(output) == 100
