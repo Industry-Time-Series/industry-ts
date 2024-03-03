@@ -2,11 +2,10 @@
     Module with classes for univariate models.
 """
 import abc
+from typing import Union
 
 import numpy as np
 import pandas as pd
-
-from typing import Union
 
 
 class UnivariateModel(metaclass=abc.ABCMeta):
@@ -22,21 +21,24 @@ class UnivariateModel(metaclass=abc.ABCMeta):
         family: Family of the model.
     """
 
-    def __init__(self, order: int, family: str):
+    def __init__(self, order: int, family: str, bias: bool):
         super(UnivariateModel, self).__init__()
         self.__order = order
         self.__family = family
+        self._bias = bias
+        self.coef = None
 
     @abc.abstractmethod
-    def fit(self, data: Union[pd.DataFrame, np.ndarray], **kwargs):
+    def fit(self, data: Union[pd.DataFrame, np.ndarray]):
         """
         Fit the model to the data.
         """
         pass
 
-    @abc.abstractmethod
-    def forecast(self, initial_conditions: Union[pd.DataFrame, np.ndarray],
-                 horizon: int = 1) -> np.ndarray:
+    def forecast(self,
+                 initial_conditions: Union[pd.DataFrame,
+                                           np.ndarray, list] = None,
+                 horizon: int = 1):
         """
         Simulate the model forward in time.
 
@@ -47,7 +49,33 @@ class UnivariateModel(metaclass=abc.ABCMeta):
         Returns:
             forecast (ndarray): Forecasted values.
         """
-        pass
+        # Zero initial conditions. Initialize system with zeros
+        if initial_conditions is None:
+            initial_conditions = np.zeros(self.__order)
+        else:
+            if isinstance(initial_conditions, list):
+                initial_conditions = np.array(initial_conditions)
+        if self.coef is None:
+            raise ValueError("The model must be fitted before forecasting.")
+        if not isinstance(horizon, int):
+            raise TypeError("The horizon must be an integer.")
+        if horizon < 1:
+            raise ValueError("The horizon must be greater than 0.")
+        if initial_conditions.shape[0] < self.__order:
+            raise ValueError("The initial conditions must have at least as "
+                             "many observations as the order of the model.")
+
+        regressors = self._prepare_regressors(initial_conditions,
+                                              inference=True)
+        forecast = np.zeros((self.__order + horizon))
+        forecast[:self.__order] = initial_conditions[-self.__order:]
+
+        for i in range(self.__order, self.__order + horizon):
+            forecast[i] = regressors @ self.coef
+            regressors = self._prepare_regressors(forecast[i:(i+self.__order)],
+                                                  inference=True)
+
+        return forecast[-horizon:]
 
     def _fix_dim_type(self, data: Union[pd.DataFrame, np.ndarray]
                       ) -> np.ndarray:
@@ -86,11 +114,9 @@ class UnivariateModel(metaclass=abc.ABCMeta):
         # [bias, y[k-1], y[k-2], ..., y[k-order]]
         return regressors
 
-    def __call__(
-            self,
-            data: Union[pd.DataFrame, np.ndarray],
-            **kwargs) -> np.ndarray:
-        self.predict(data, **kwargs)
+    def __call__(self, initial_conditions: Union[pd.DataFrame, np.ndarray],
+                 horizon: int = 1) -> np.ndarray:
+        return self.forecast(initial_conditions, horizon)
 
     def __str__(self) -> str:
         return self.__family + " model of order " + str(self.__order)
@@ -117,7 +143,8 @@ class AutoRegressive(UnivariateModel):
             raise TypeError("The order of the model must be an integer.")
         if not isinstance(bias, bool):
             raise TypeError("The bias must be a boolean value.")
-        super(AutoRegressive, self).__init__(order=p, family='Autoregressive')
+        super(AutoRegressive, self).__init__(order=p, family='Autoregressive',
+                                             bias=bias)
         self.p = p
         self.coef = None
         self._bias = bias
@@ -137,38 +164,6 @@ class AutoRegressive(UnivariateModel):
 
         self.coef = np.linalg.lstsq(regressors, targets, rcond=None)[0]
 
-    def forecast(self, initial_condition: Union[pd.DataFrame, np.ndarray],
-                 horizon: int = 1):
-        """
-        Simulate the model forward in time.
-
-        Args:
-            initial_conditions (ArrayLike): Initial conditions for the model.
-            horizon (int): Number of steps to forecast. Defaults to 1.
-
-        Returns:
-            forecast (ndarray): Forecasted values.
-        """
-        if self.coef is None:
-            raise ValueError("The model must be fitted before forecasting.")
-        if not isinstance(horizon, int):
-            raise TypeError("The horizon must be an integer.")
-        if horizon < 1:
-            raise ValueError("The horizon must be greater than 0.")
-        if initial_condition.shape[0] < self.p:
-            raise ValueError("The initial conditions must have at least as "
-                             "many observations as the order of the model.")
-
-        regressors = self._prepare_regressors(initial_condition,
-                                              inference=True)
-        forecast = np.zeros((self.p + horizon))
-        forecast[:self.p] = initial_condition[-self.p:]
-
-        for i in range(self.p, self.p + horizon):
-            forecast[i] = regressors @ self.coef
-            regressors = self._prepare_regressors(forecast[-self.p:],
-                                                  inference=True)
-        return forecast[-horizon:]
 
 
 class MovingAverage(UnivariateModel):
@@ -186,7 +181,8 @@ class MovingAverage(UnivariateModel):
     """
 
     def __init__(self, q: int = 1, bias: bool = True):
-        super(MovingAverage, self).__init__(order=q, family='Moving Average')
+        super(MovingAverage, self).__init__(order=q, family='Moving Average',
+                                            bias=bias)
         self.q = q
         self.coef = None
         self._bias = bias
