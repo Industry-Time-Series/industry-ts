@@ -72,8 +72,8 @@ class UnivariateModel(metaclass=abc.ABCMeta):
 
         for i in range(self.__order, self.__order + horizon):
             forecast[i] = regressors @ self.coef
-            regressors = self._prepare_regressors(forecast[i:(i+self.__order)],
-                                                  inference=True)
+            regressors = self._prepare_regressors(
+                forecast[i:(i + self.__order)], inference=True)
 
         return forecast[-horizon:]
 
@@ -163,7 +163,6 @@ class AutoRegressive(UnivariateModel):
         targets = data[self.p:]
 
         self.coef = np.linalg.lstsq(regressors, targets, rcond=None)[0]
-
 
 
 class MovingAverage(UnivariateModel):
