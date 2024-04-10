@@ -3,6 +3,7 @@
     the least squares method.
 """
 import numpy as np
+from sklearn.linear_model import LinearRegression
 
 
 class LeastSquaresOptimizer:
@@ -68,13 +69,16 @@ class LeastSquaresOptimizer:
         if self.method == "OLS":
             coefs = self._ols(regressors, targets)
         elif self.method == "RLS":
-            if kwargs['return_history']:
+            if 'return_history' in kwargs and kwargs['return_history']:
                 coefs_hist, coefs = self._rls(regressors, targets, **kwargs)
             else:
                 coefs = self._rls(regressors, targets, **kwargs)
 
         elif self.method == "ELS":
-            raise ValueError("Method not implemented yet.")
+            if 'use_xi' in kwargs and kwargs['use_xi']:
+                coefs, xi = self._els(regressors, targets, **kwargs)
+            else:
+                coefs = self._els(regressors, targets, **kwargs)
         elif self.method == "regOLS":
             raise ValueError("Method not implemented yet.")
         else:
@@ -84,6 +88,8 @@ class LeastSquaresOptimizer:
         if not inplace:
             if 'return_history' in kwargs and kwargs['return_history']:
                 return coefs_hist, coefs
+            elif 'use_xi' in kwargs and kwargs['use_xi']:
+                return coefs, xi
             return coefs
 
     @staticmethod
@@ -164,7 +170,7 @@ class LeastSquaresOptimizer:
 
             # Update the covariance matrix.
             p_mat_cand = (
-                    ((np.eye(p) - (k_mat @ phi.T)) @ p_mat)/forgetting_factor)
+                ((np.eye(p) - (k_mat @ phi.T)) @ p_mat) / forgetting_factor)
 
             # If the trace of the covariance matrix is too small,
             # it is not updated, since very small values of p_mat would
@@ -182,3 +188,86 @@ class LeastSquaresOptimizer:
             return coef_history, coef_history[-1].reshape(p, 1)
         else:
             return coef.reshape(p, 1)
+
+    def __ridge_regression(self, H: np.ndarray, Yaug: np.ndarray):
+        """
+        Simple Ridge Regression (Tikhonov Regularization) implementation.
+
+        Parameters:
+        --------------
+        H: (ndarray) input data;
+        Yaug: (ndarray) target data;
+        Lambda: (float) regularization parameter.
+
+        Returns:
+        An ndarray with the fitted coefficients.
+        """
+        regr = LinearRegression(fit_intercept=False)
+        regr = regr.fit(H, Yaug)
+        theta = regr.coef_
+
+        return theta.T
+
+    def _els(self, regressors: np.ndarray, targets: np.ndarray,
+             n_it: int = 100, tol: float = 1e-5, criterion: str = "theta",
+             use_xi: bool = False):
+        """
+        Extended least squares.
+
+        Args:
+            regressors (ndarray): Matrix with regressors, commonly denominated
+                the Phi matrix. Each column is a regressor, and each row is an
+                observation. This should be a batch of observations.
+            targets (ndarray): Vector with targets, commonly denominated the
+                y vector. Each row is an observation.
+            n_it (int): Maximum number of iterations. Defaults to 100.
+            tol (float): Tolerance for the stopping criterion.
+                Defaults to 1e-5.
+            criterion (str): Stopping criterion. Can be "theta" or "xi".
+                Defaults to "theta".
+            use_xi (bool): Whether to use the xi vector. Defaults to False.
+
+        Returns:
+            coef (ndarray): Coefficients of the model. Will be in shape [p, 1]
+        """
+        regressors_mat = regressors.copy()
+        # Number of regressors.
+        p = regressors_mat.shape[1]
+        # Initial regression to find the residuals.
+        theta = self.__ridge_regression(
+            regressors_mat, targets.reshape(-1, 1))
+        # Optimization loop
+        stop = False
+        counter = 0
+        targets_reshape = targets.reshape(-1, 1)
+        while not stop or counter < n_it:
+            # The residuals
+            xi = (targets_reshape -
+                  np.matmul(regressors_mat, theta))
+            # Delay the residuals and insert 0 as the first element.
+            xi = np.insert(xi[:-1], 0, 0)
+            # Drop old xi from the regressors matrix. We need this after the
+            # first iteration.
+            if regressors_mat.shape[1] > p:
+                regressors_mat = regressors_mat[:, :-1]
+            # Concat the residuals to the regressors matrix.
+            regressors_mat = np.concatenate(
+                (regressors_mat, xi.reshape(-1, 1)), axis=1)
+            theta_new = self.__ridge_regression(
+                regressors_mat, targets_reshape)
+            counter += 1
+
+            if counter > 1:
+                if criterion == 'xi':
+                    stop = np.std(xi) < tol
+                elif criterion == 'theta':
+                    stop = np.sum(np.abs(theta_new - theta)) < tol
+                else:
+                    raise ValueError('Unknown criterion specified.')
+
+            # ? Não deveríamos atualizar o theta_new mesmo quando stop = True?
+            theta = theta_new
+        # Ignore the coefficient associated with xi and return col vector.
+        if use_xi:
+            return theta.reshape(-1, 1), xi
+        return theta[:-1].reshape(-1, 1)
