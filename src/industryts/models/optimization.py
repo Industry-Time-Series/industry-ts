@@ -3,7 +3,6 @@
     the least squares method.
 """
 import numpy as np
-from sklearn.linear_model import LinearRegression
 
 
 class LeastSquaresOptimizer:
@@ -83,7 +82,6 @@ class LeastSquaresOptimizer:
             raise ValueError("Method not implemented yet.")
         else:
             raise ValueError("Method not recognized yet.")
-        self.coefs = coefs
 
         if not inplace:
             if 'return_history' in kwargs and kwargs['return_history']:
@@ -91,6 +89,8 @@ class LeastSquaresOptimizer:
             elif 'use_xi' in kwargs and kwargs['use_xi']:
                 return coefs, xi
             return coefs
+
+        self.coefs = coefs
 
     @staticmethod
     def _ols(regressors: np.ndarray, targets: np.ndarray):
@@ -189,25 +189,6 @@ class LeastSquaresOptimizer:
         else:
             return coef.reshape(p, 1)
 
-    def __ridge_regression(self, H: np.ndarray, Yaug: np.ndarray):
-        """
-        Simple Ridge Regression (Tikhonov Regularization) implementation.
-
-        Parameters:
-        --------------
-        H: (ndarray) input data;
-        Yaug: (ndarray) target data;
-        Lambda: (float) regularization parameter.
-
-        Returns:
-        An ndarray with the fitted coefficients.
-        """
-        regr = LinearRegression(fit_intercept=False)
-        regr = regr.fit(H, Yaug)
-        theta = regr.coef_
-
-        return theta.T
-
     def _els(self, regressors: np.ndarray, targets: np.ndarray,
              n_it: int = 100, tol: float = 1e-5, criterion: str = "theta",
              use_xi: bool = False):
@@ -230,30 +211,46 @@ class LeastSquaresOptimizer:
         Returns:
             coef (ndarray): Coefficients of the model. Will be in shape [p, 1]
         """
+        # Regressors are expected to be (n, p), where n is the number of
+        # observations and p is the number of regressors.
         regressors_mat = regressors.copy()
+        # Targets are expected to be (n, 1).
+        targets_reshape = targets.reshape(-1, 1)
+
         # Number of regressors.
         p = regressors_mat.shape[1]
+
         # Initial regression to find the residuals.
-        theta = self.__ridge_regression(
+        # Theta is of shape (p, 1)
+        theta = self._ols(
             regressors_mat, targets.reshape(-1, 1))
+        print('=================')
+        print(theta)
+        print('=================')
         # Optimization loop
         stop = False
         counter = 0
-        targets_reshape = targets.reshape(-1, 1)
-        while not stop or counter < n_it:
-            # The residuals
-            xi = (targets_reshape -
-                  np.matmul(regressors_mat, theta))
+        while (not stop) and (counter < n_it):
+            # The residuals. xi is of shape (n, 1)
+            xi = (targets_reshape - (regressors_mat @ theta))
+
             # Delay the residuals and insert 0 as the first element.
-            xi = np.insert(xi[:-1], 0, 0)
+            xi = np.insert(xi[:-1], 0, 0).reshape(-1, 1)
+            print('=================')
+            # print(xi)
+            # print(xi.shape)
+            print(np.mean(xi))
             # Drop old xi from the regressors matrix. We need this after the
             # first iteration.
+            # If the number of columns is greater than p, the xi was added and
+            # needs to be dropped (should always be true after the first
+            # iteration).
             if regressors_mat.shape[1] > p:
                 regressors_mat = regressors_mat[:, :-1]
+
             # Concat the residuals to the regressors matrix.
-            regressors_mat = np.concatenate(
-                (regressors_mat, xi.reshape(-1, 1)), axis=1)
-            theta_new = self.__ridge_regression(
+            regressors_mat = np.concatenate((regressors_mat, xi), axis=1)
+            theta_new = self._ols(
                 regressors_mat, targets_reshape)
             counter += 1
 
@@ -264,9 +261,9 @@ class LeastSquaresOptimizer:
                     stop = np.sum(np.abs(theta_new - theta)) < tol
                 else:
                     raise ValueError('Unknown criterion specified.')
-
-            # ? Não deveríamos atualizar o theta_new mesmo quando stop = True?
+            print(counter)
             theta = theta_new
+            print(theta)
         # Ignore the coefficient associated with xi and return col vector.
         if use_xi:
             return theta.reshape(-1, 1), xi
