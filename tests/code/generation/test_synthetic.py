@@ -18,7 +18,6 @@ class TestARProcess():
         """Test that all samples are finite if the system is stable.
         """
         output = ar_process([0.2], samples=5000, noise=0)
-        print(max(output))
         assert all(np.isfinite(output))
 
     def test_unstable_system(self):
