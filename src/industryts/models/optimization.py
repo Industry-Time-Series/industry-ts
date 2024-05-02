@@ -224,9 +224,7 @@ class LeastSquaresOptimizer:
         # Theta is of shape (p, 1)
         theta = self._ols(
             regressors_mat, targets.reshape(-1, 1))
-        print('=================')
-        print(theta)
-        print('=================')
+
         # Optimization loop
         stop = False
         counter = 0
@@ -236,10 +234,7 @@ class LeastSquaresOptimizer:
 
             # Delay the residuals and insert 0 as the first element.
             xi = np.insert(xi[:-1], 0, 0).reshape(-1, 1)
-            print('=================')
-            # print(xi)
-            # print(xi.shape)
-            print(np.mean(xi))
+
             # Drop old xi from the regressors matrix. We need this after the
             # first iteration.
             # If the number of columns is greater than p, the xi was added and
@@ -261,9 +256,9 @@ class LeastSquaresOptimizer:
                     stop = np.sum(np.abs(theta_new - theta)) < tol
                 else:
                     raise ValueError('Unknown criterion specified.')
-            print(counter)
+
             theta = theta_new
-            print(theta)
+
         # Ignore the coefficient associated with xi and return col vector.
         if use_xi:
             return theta.reshape(-1, 1), xi
