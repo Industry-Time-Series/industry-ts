@@ -190,8 +190,8 @@ class LeastSquaresOptimizer:
             return coef.reshape(p, 1)
 
     def _els(self, regressors: np.ndarray, targets: np.ndarray,
-             n_it: int = 100, tol: float = 1e-5, criterion: str = "theta",
-             use_xi: bool = False):
+             ma_order: int = 1, n_it: int = 100, tol: float = 1e-5,
+             criterion: str = "theta", use_xi: bool = False):
         """
         Extended least squares.
 
@@ -201,6 +201,7 @@ class LeastSquaresOptimizer:
                 observation. This should be a batch of observations.
             targets (ndarray): Vector with targets, commonly denominated the
                 y vector. Each row is an observation.
+            ma_order (int): Order of the moving average process. Defaults to 1.
             n_it (int): Maximum number of iterations. Defaults to 100.
             tol (float): Tolerance for the stopping criterion.
                 Defaults to 1e-5.
@@ -232,8 +233,10 @@ class LeastSquaresOptimizer:
             # The residuals. xi is of shape (n, 1)
             xi = (targets_reshape - (regressors_mat @ theta))
 
-            # Delay the residuals and insert 0 as the first element.
-            xi = np.insert(xi[:-1], 0, 0).reshape(-1, 1)
+            # Delay the residuals considering the MA order and insert zeros
+            # at the beginning.
+            xi = np.concatenate(
+                (np.zeros((ma_order, 1)), xi), axis=0).reshape(-1, 1)
 
             # Drop old xi from the regressors matrix. We need this after the
             # first iteration.
@@ -241,10 +244,13 @@ class LeastSquaresOptimizer:
             # needs to be dropped (should always be true after the first
             # iteration).
             if regressors_mat.shape[1] > p:
-                regressors_mat = regressors_mat[:, :-1]
+                regressors_mat = regressors_mat[:, :-ma_order]
 
             # Concat the residuals to the regressors matrix.
-            regressors_mat = np.concatenate((regressors_mat, xi), axis=1)
+            for ma in range(ma_order):
+                regressors_mat = np.hstack(
+                    (regressors_mat, xi[ma:-(ma_order - ma)]))
+
             theta_new = self._ols(
                 regressors_mat, targets_reshape)
             counter += 1
@@ -262,4 +268,4 @@ class LeastSquaresOptimizer:
         # Ignore the coefficient associated with xi and return col vector.
         if use_xi:
             return theta.reshape(-1, 1), xi
-        return theta[:-1].reshape(-1, 1)
+        return theta[:-ma_order].reshape(-1, 1)
