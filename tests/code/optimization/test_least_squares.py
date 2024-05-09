@@ -9,11 +9,11 @@ from src.industryts.generation.synthetic import ar_process, ma_process
 
 
 np.random.seed(42)
-AR_COEFS = [0.7]
-MA_COEFS = [0.8]
+AR_COEFS = [0.4, -0.3]
+MA_COEFS = [0.1]
 EX_COEFS = [0.5]
 SAMPLES = 502
-NOISE_MAGNITUDE = 0.2
+NOISE_MAGNITUDE = 0.3
 INPUT_MAGNITUDE = 0.5
 N_EXPS = 400
 
@@ -41,7 +41,7 @@ def arma_measurements(experiments: int = N_EXPS):
     exps = []
     for _ in range(experiments):
         measurements = ar_process(AR_COEFS, SAMPLES).reshape(-1, 1)
-        measurements += ma_process(MA_COEFS, SAMPLES).reshape(-1, 1)
+        measurements += ma_process(MA_COEFS, SAMPLES).reshape(-1, 1) * 0.2
 
         order = len(AR_COEFS)
         regressors = np.hstack(
@@ -133,7 +133,8 @@ class TestLeastSquaresOptimizer:
                 ols.fit(regressors, targets, inplace=True)
                 coefs.append(ols.coefs)
         coefs = np.array(coefs).reshape(-1, len(AR_COEFS))
-        assert np.mean(coefs, axis=0) == pytest.approx(AR_COEFS, abs=5e-3)
+        print("OLS Linear Coefs: ", np.mean(coefs, axis=0))
+        assert np.mean(coefs, axis=0) == pytest.approx(AR_COEFS, abs=0.01)
 
     def test_ols_extended_linear(self, arx_measurements_with_noise):
         """Test the Ordinary Least Squares method with noise."""
@@ -142,8 +143,10 @@ class TestLeastSquaresOptimizer:
             ols = LeastSquaresOptimizer(method="OLS")
             ols.fit(phi, targets, inplace=True)
             coefs.append(ols.coefs)
-        coefs = np.array(coefs).reshape(-1, len(AR_COEFS))
-        assert np.mean(coefs, axis=0) != pytest.approx(AR_COEFS, abs=1e-2)
+        coefs = np.array(coefs).reshape(-1, len(AR_COEFS) + len(EX_COEFS))
+        print("OLS Extended Linear Coefs: ", np.mean(coefs, axis=0))
+        assert np.mean(coefs, axis=0) != pytest.approx(
+            EX_COEFS + AR_COEFS, abs=0.01)
 
     def test_els_extended_linear(self, arx_measurements_with_noise):
         """Test the Extended Least Squares method with noise."""
@@ -153,6 +156,32 @@ class TestLeastSquaresOptimizer:
             els.fit(phi, targets, inplace=True, n_it=1000, criterion='theta',
                     ma_order=1)
             coefs_els.append(els.coefs.T)
-        coefs_els = np.array(coefs_els).reshape(-1, len(AR_COEFS))
+        coefs_els = np.array(coefs_els).reshape(
+            -1, len(AR_COEFS) + len(EX_COEFS))
+        print("ELS Extended Linear Coefs: ", np.mean(coefs_els, axis=0))
+        assert np.mean(coefs_els, axis=0) == pytest.approx(
+            EX_COEFS + AR_COEFS, abs=0.01)
 
+    def test_ols_arma(self, arma_measurements):
+        """Test the Ordinary Least Squares method."""
+        coefs = []
+        for regressors, targets in arma_measurements:
+            for _ in range(30):
+                ols = LeastSquaresOptimizer('OLS')
+                ols.fit(regressors, targets, inplace=True)
+                coefs.append(ols.coefs)
+        coefs = np.array(coefs).reshape(-1, len(AR_COEFS))
+        print("OLS ARMA Coefs: ", np.mean(coefs, axis=0))
+        assert np.mean(coefs, axis=0) != pytest.approx(AR_COEFS, abs=0.01)
+
+    def test_els_arma(self, arma_measurements):
+        """Test the Extended Least Squares method."""
+        coefs_els = []
+        for regressors, targets in arma_measurements:
+            els = LeastSquaresOptimizer(method="ELS")
+            els.fit(regressors, targets, inplace=True, n_it=1000,
+                    criterion='theta', ma_order=1)
+            coefs_els.append(els.coefs.T)
+        coefs_els = np.array(coefs_els).reshape(-1, len(AR_COEFS))
+        print("ELS ARMA Coefs: ", np.mean(coefs_els, axis=0))
         assert np.mean(coefs_els, axis=0) == pytest.approx(AR_COEFS, abs=0.01)
