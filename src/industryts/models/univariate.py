@@ -7,6 +7,8 @@ from typing import Union
 import numpy as np
 import pandas as pd
 
+from src.industryts.models.optimization import LeastSquaresOptimizer
+
 
 class UnivariateModel(metaclass=abc.ABCMeta):
     """
@@ -161,8 +163,9 @@ class AutoRegressive(UnivariateModel):
 
         regressors = self._prepare_regressors(data)
         targets = data[self.p:]
-
-        self.coef = np.linalg.lstsq(regressors, targets, rcond=None)[0]
+        ols_optimizer = LeastSquaresOptimizer(method='OLS')
+        ols_optimizer.fit(regressors, targets, inplace=True)
+        self.coef = ols_optimizer.coef
 
 
 class MovingAverage(UnivariateModel):
@@ -198,16 +201,8 @@ class MovingAverage(UnivariateModel):
         residuals = data
         regressors = self._prepare_regressors(residuals)
 
-        self.coef = [0 for _ in range(self.q)]
+        els_optimizer = LeastSquaresOptimizer(method='ELS')
 
-        for _ in range(n_iterations):
-            # Calculate the coefficients
-            self.coef = np.linalg.lstsq(regressors, targets, rcond=None)[0]
-            # Calculate the residuals
-            residuals = targets - regressors @ self.coef
-            # Add q zeros to the beginning of the residuals to match the
-            # dimensions of the regressors
-            residuals = np.vstack([np.zeros((self.q, residuals.shape[1])),
-                                   residuals])
-            # Update the regressors
-            regressors = self._prepare_regressors(residuals)
+        els_optimizer.fit(regressors, targets, inplace=True, n_it=n_iterations,
+                          criterion='theta', ma_order=self.q)
+        self.coef = els_optimizer.coef
