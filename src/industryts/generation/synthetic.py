@@ -11,8 +11,8 @@ import pandas as pd
 rng = np.random.default_rng(1525)
 
 
-def ar_process(coefs: list, samples: int = 100, noise: float = 0
-               ) -> np.ndarray:
+def ar_process(coefs: list, samples: int = 100, noise: float = 0,
+               bias: float = 0) -> np.ndarray:
     """
     Generate synthetic data from an Autoregressive (AR) process of a given
     length and known coefficients, with the possibility of adding noise to
@@ -28,6 +28,7 @@ def ar_process(coefs: list, samples: int = 100, noise: float = 0
         samples (int): number of data points to be generated. Default is 100.
         noise (float): standard deviation of the noise to be added to the
         measurements. Default is 0, which means no noise.
+        bias (float): bias term to be added to the series. Default is 0.
 
     Returns:
         series: array with the generated AR process.
@@ -50,6 +51,7 @@ def ar_process(coefs: list, samples: int = 100, noise: float = 0
         prev_samples = y[(k - order):k][::-1]
 
         y[k] = np.sum(np.array(prev_samples) * coefs) + rng.standard_normal()
+        y[k] += bias
 
     # Since the noise is intended to emulate measurement noise, it is
     # added to the measurements after the AR process is generated.
@@ -59,8 +61,8 @@ def ar_process(coefs: list, samples: int = 100, noise: float = 0
     return np.array(y)
 
 
-def ma_process(coefs: list, samples: int = 100, noise: float = 0
-               ) -> np.ndarray:
+def ma_process(coefs: list, samples: int = 100, noise: float = 0,
+               bias: float = 0) -> np.ndarray:
     """
     Generate synthetic data from a Moving Average (MA) process of a given
     length and known coefficients, with the possibility of adding noise to
@@ -99,12 +101,14 @@ def ma_process(coefs: list, samples: int = 100, noise: float = 0
             # previous values of the series are calculated differently.
             prev_samples = nu[0:k][::-1]
             y[k] = np.sum(np.array(prev_samples) * coefs[:k]) + nu[k]
+            y[k] += bias
         else:
             # Get previous values of the series, reversed. This is done to
             # match the order of the coefficients.
             prev_samples = nu[(k - order):k][::-1]
 
             y[k] = np.sum(np.array(prev_samples) * coefs) + nu[k]
+            y[k] += bias
 
     if noise:
         y += rng.standard_normal(size=samples) * noise
