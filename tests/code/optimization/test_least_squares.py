@@ -18,7 +18,7 @@ INPUT_MAGNITUDE = 0.5
 N_EXPS = 400
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="class")
 def ar_measurements(experiments: int = N_EXPS):
     """Generate synthetic data from an AR process."""
     exps = []
@@ -35,7 +35,7 @@ def ar_measurements(experiments: int = N_EXPS):
     return exps
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="class")
 def arma_measurements(experiments: int = N_EXPS):
     """Generate synthetic data from an AR process."""
     exps = []
@@ -54,7 +54,7 @@ def arma_measurements(experiments: int = N_EXPS):
     return exps
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="class")
 def ar_measurements_with_noise(experiments: int = N_EXPS):
     """Generate synthetic data from an AR process with MA noise."""
     exps = []
@@ -84,7 +84,7 @@ def ar_measurements_with_noise(experiments: int = N_EXPS):
     return exps
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="class")
 def arx_measurements_with_noise(experiments: int = N_EXPS):
     """Generate synthetic data from an ARX process."""
     exps = []
