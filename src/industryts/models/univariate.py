@@ -7,6 +7,8 @@ from typing import Union
 import numpy as np
 import pandas as pd
 
+from src.industryts.models.optimization import LeastSquaresOptimizer
+
 
 class UnivariateModel(metaclass=abc.ABCMeta):
     """
@@ -26,7 +28,7 @@ class UnivariateModel(metaclass=abc.ABCMeta):
         self.__order = order
         self.__family = family
         self._bias = bias
-        self.coef = None
+        self.coefs = None
 
     @abc.abstractmethod
     def fit(self, data: Union[pd.DataFrame, np.ndarray]):
@@ -55,7 +57,7 @@ class UnivariateModel(metaclass=abc.ABCMeta):
         else:
             if isinstance(initial_conditions, list):
                 initial_conditions = np.array(initial_conditions)
-        if self.coef is None:
+        if self.coefs is None:
             raise ValueError("The model must be fitted before forecasting.")
         if not isinstance(horizon, int):
             raise TypeError("The horizon must be an integer.")
@@ -71,9 +73,9 @@ class UnivariateModel(metaclass=abc.ABCMeta):
         forecast[:self.__order] = initial_conditions[-self.__order:]
 
         for i in range(self.__order, self.__order + horizon):
-            forecast[i] = regressors @ self.coef
-            regressors = self._prepare_regressors(forecast[i:(i+self.__order)],
-                                                  inference=True)
+            forecast[i] = regressors @ self.coefs
+            regressors = self._prepare_regressors(
+                forecast[i:(i + self.__order)], inference=True)
 
         return forecast[-horizon:]
 
@@ -133,7 +135,7 @@ class AutoRegressive(UnivariateModel):
 
     Attributes:
         p: Order of the model.
-        coef: Coefficients of the model.
+        coefs: Coefficients of the model.
     """
 
     def __init__(self, p: int = 1, bias: bool = True):
@@ -146,7 +148,7 @@ class AutoRegressive(UnivariateModel):
         super(AutoRegressive, self).__init__(order=p, family='Autoregressive',
                                              bias=bias)
         self.p = p
-        self.coef = None
+        self.coefs = None
         self._bias = bias
 
     def fit(self, data: Union[pd.DataFrame, np.ndarray]):
@@ -161,9 +163,9 @@ class AutoRegressive(UnivariateModel):
 
         regressors = self._prepare_regressors(data)
         targets = data[self.p:]
-
-        self.coef = np.linalg.lstsq(regressors, targets, rcond=None)[0]
-
+        ols_optimizer = LeastSquaresOptimizer(method='OLS')
+        ols_optimizer.fit(regressors, targets, inplace=True)
+        self.coefs = ols_optimizer.coefs
 
 
 class MovingAverage(UnivariateModel):
@@ -177,14 +179,14 @@ class MovingAverage(UnivariateModel):
 
     Attributes:
         q: Order of the model.
-        coef: Coefficients of the model.
+        coefs: Coefficients of the model.
     """
 
     def __init__(self, q: int = 1, bias: bool = True):
         super(MovingAverage, self).__init__(order=q, family='Moving Average',
                                             bias=bias)
         self.q = q
-        self.coef = None
+        self.coefs = None
         self._bias = bias
 
     def fit(self, data: Union[pd.DataFrame, np.ndarray],
@@ -199,13 +201,13 @@ class MovingAverage(UnivariateModel):
         residuals = data
         regressors = self._prepare_regressors(residuals)
 
-        self.coef = [0 for _ in range(self.q)]
+        self.coefs = [0 for _ in range(self.q)]
 
         for _ in range(n_iterations):
             # Calculate the coefficients
-            self.coef = np.linalg.lstsq(regressors, targets, rcond=None)[0]
+            self.coefs = np.linalg.lstsq(regressors, targets, rcond=None)[0]
             # Calculate the residuals
-            residuals = targets - regressors @ self.coef
+            residuals = targets - regressors @ self.coefs
             # Add q zeros to the beginning of the residuals to match the
             # dimensions of the regressors
             residuals = np.vstack([np.zeros((self.q, residuals.shape[1])),

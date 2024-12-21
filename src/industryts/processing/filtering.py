@@ -99,7 +99,7 @@ def get_continuous_patches(
                             {"start": start_time, "end": end_time})
     else:
         for start, end in zip(event_starts, event_ends):
-            if (end >= start)  & (end - start >= min_length):
+            if (end >= start) & (end - start >= min_length):
                 patches_dicts.append(
                     {"start": start, "end": end})
 
@@ -162,7 +162,7 @@ def rm_stopped_operation(data: pd.DataFrame, rm_events_mask: np.ndarray,
     # Subtract one because the last event ends on the last sample before the
     # next event starts. Add the last sample "t.shape[0]-1" as the end of the
     # last event.
-    event_ends = np.r_[np.nonzero(t)[0]-1, t.shape[0]-1]
+    event_ends = np.r_[np.nonzero(t)[0] - 1, t.shape[0] - 1]
 
     # List of dicts containing start and end of all events
     shutdown_dicts = []
@@ -244,7 +244,7 @@ def filter_static_windows(data: pd.DataFrame, columns: list = None,
                     # If remove is True, remove the window
                     if remove_window:
                         # * Drop including the 'end' sample
-                        data = data.drop(data[start:(end + 1)].index)
+                        data = data.drop(data[start:end + 1].index)
                     else:
                         # * Replace the window with null values
                         data.loc[start:end, column] = np.nan
